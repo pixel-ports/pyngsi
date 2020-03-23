@@ -1,0 +1,7 @@
+name: pyngsi
+dependencies:
+  - ipython
+  - ipykernel
+  - pip
+  - pip:
+    - pyngsi
