@@ -1,0 +1,17 @@
+version: '3'
+services:
+  orion:
+    image: fiware/orion
+    depends_on:
+      - oriondb
+    container_name: orion
+    ports:
+      - 1026:1026
+    command: -dbhost oriondb
+    restart: always
+  oriondb:
+    image: mongo
+    container_name: oriondb
+    command: --nojournal
+
+  
