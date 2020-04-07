@@ -27,7 +27,7 @@ def main():
     # If you have an Orion server available, just replace SinkStdout() with SinkOrion()
     sink = SinkStdout()
 
-    # The agent processes CSV content received from the client
+    # The agent processes JSON content received from the client
     agent = NgsiAgent.create_agent(src, sink, process=build_entity)
 
     # You must push data to the source, here we send POST requests to the server

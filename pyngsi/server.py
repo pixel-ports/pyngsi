@@ -123,6 +123,10 @@ class ServerHttpUpload(Server):
             return jsonify(server_status=self.agent.server_status,
                            ngsi_stats=self.agent.stats,
                            orion_status=remote_status)
+        else:
+            return jsonify(server_status=self.agent.server_status,
+                           ngsi_stats=self.agent.stats)
+
 
     def _upload(self):
         if self.agent:
