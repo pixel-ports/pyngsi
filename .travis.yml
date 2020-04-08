@@ -5,6 +5,7 @@ python:
 install:
     - pip install pytest-mock
     - pip install requests-mock
+    - pip install pytest-flask
     - pip install --editable .  
 script:
   - pytest
