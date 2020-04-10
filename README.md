@@ -40,7 +40,7 @@ pip install pyngsi
 [Apache 2.0](LICENSE)
 
 ## Documentation
-The official documentation is hosted at https://pixel-ports.readthedocs.io/en/latest/#data-acquistion-layer-dal
+The official documentation is hosted at https://pixel-ports.github.io/pyngsi-tutorial.html
 
 ## Background
 Work on ``pyngsi`` started at [Orange](https://www.orange.com) in 2019 for the needs of the [PIXEL](https://pixel-ports.eu) european project.

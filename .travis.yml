@@ -2,11 +2,16 @@ language: python
 cache: pip
 python:
   - "3.8"
-install:
+install:  
+    - pip install pytest
     - pip install pytest-mock
     - pip install requests-mock
     - pip install pytest-flask
+    - pip install codecov
+    - pip install pytest-codecov
     - pip install --editable .  
 script:
-  - pytest
+  - pytest --cov=pyngsi tests/
   
+after_success:
+  - codecov
