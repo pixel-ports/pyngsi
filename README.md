@@ -3,7 +3,7 @@
 [![PyPI Latest Release](https://img.shields.io/pypi/v/pyngsi)](https://pypi.org/project/pyngsi/)
 [![License badge](https://img.shields.io/github/license/pixel-ports/pyngsi)](https://opensource.org/licenses/Apache-2.0)
 [![Build badge](https://img.shields.io/travis/pixel-ports/pyngsi)](https://travis-ci.org/pixel-ports/pyngsi/)
-[![Code coverage](https://img.shields.io/codecov/c/github/pixel-ports/pyngsi/travis)](https://codecov.io/gh/pixel-ports/pyngsi)
+[![Code coverage](https://img.shields.io/codecov/c/github/pixel-ports/pyngsi/master)](https://codecov.io/gh/pixel-ports/pyngsi)
 [![Python version](https://img.shields.io/pypi/pyversions/pyngsi)](https://pypi.org/project/pyngsi/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pixel-ports/pyngsi-tutorial/master)
 [![NGSI v2](https://nexus.lab.fiware.org/repository/raw/public/badges/specifications/ngsiv2.svg)](https://fiware.github.io/specifications/ngsiv2/stable/)
