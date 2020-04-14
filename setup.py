@@ -18,9 +18,12 @@ setuptools.setup(
     author_email="fabien.battello@orange.com",
     license="Apache 2.0",
     classifiers=[
-            "Programming Language :: Python :: 3",
-            "License :: OSI Approved :: Apache Software License",
-            "Operating System :: OS Independent",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8"
     ],
     packages=setuptools.find_packages(),
     include_package_data=False,
