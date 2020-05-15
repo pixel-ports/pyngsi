@@ -113,10 +113,10 @@ def test_add_field_sequence():
 # https://fiware-datamodels.readthedocs.io/en/latest/Environment/AirQualityObserved/doc/spec/index.html#representing-air-pollutants
 def test_metadata():
     m = DataModel("AirQualityObserved", "AirQualityObserved")
-    units = {"unitCode": "GP"}
-    m.add("CO", 500, metadata=units)
-    units = {"unitCode": "GQ"}
-    m.add("NO", 45, metadata=units)
+    unitsGP = {"unitCode": {"value": "GP"}}
+    unitsGQ = {"unitCode": {"value": "GQ"}}
+    m.add("CO", 500, metadata=unitsGP)
+    m.add("NO", 45, metadata=unitsGQ)
     assert m.json() == r'{"id": "AirQualityObserved", "type": "AirQualityObserved", ' \
-        r'"CO": {"value": 500, "type": "Integer", "metadata": {"unitCode": "GP"}}, ' \
-        r'"NO": {"value": 45, "type": "Integer", "metadata": {"unitCode": "GQ"}}}'
+        r'"CO": {"value": 500, "type": "Integer", "metadata": {"unitCode": {"value": "GP"}}}, ' \
+        r'"NO": {"value": 45, "type": "Integer", "metadata": {"unitCode": {"value": "GQ"}}}}'
