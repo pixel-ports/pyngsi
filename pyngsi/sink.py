@@ -178,9 +178,9 @@ class SinkHttp(Sink):
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise SinkException(
-                f"cannot write to SinkHttp : {e}\nServer returned : {r.text}")
+                f"cannot write to SinkHttp : {e}\nServer returned : {r.text}\nrecord={msg}")
         except Exception as e:
-            raise SinkException(f"cannot write to SinkHttp : {e}")
+            raise SinkException(f"cannot write to SinkHttp : {e}\nrecord={msg}")
 
     def status(self) -> dict:
         logger.trace("ask http server status")
