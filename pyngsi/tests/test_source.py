@@ -2,19 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import pkg_resources
-import types
 
 from typing import List
 
-from pyngsi.source import Row, SourceIter, SourceSingle, SourceStdin, \
+from pyngsi.source import Row, Source, SourceIter, SourceSingle, SourceStdin, \
     SourceSampleOrion, SourceFile, SourceJson
 
 
 def test_method_limit():
     src = SourceSampleOrion(count=5, delay=0)
-    g = src.limit(2)
-    assert isinstance(g, types.GeneratorType)
-    lines = [x for x in g]
+    src = src.limit(2)
+    assert isinstance(src, Source)
+    lines = [x for x in src]
     assert len(lines) == 2
 
 
@@ -33,8 +32,8 @@ def test_method_first():
 
 def test_method_skip_header():
     src = SourceSampleOrion(count=5, delay=0)
-    g = src.skip_header(lines=2)
-    lines = [x for x in g]
+    src = src.skip_header(lines=2)
+    lines = [x for x in src]
     assert len(lines) == 3
 
 

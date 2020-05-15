@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from collections.abc import Iterable
 from loguru import logger
 from os.path import basename
-from typing import List, Callable, Tuple, Any
+from typing import List, Callable, Tuple, Any, Sequence
 from more_itertools import take
 from itertools import islice
 from zipfile import ZipFile
@@ -49,10 +49,11 @@ class Source(Iterable):
     One can code its own Source just by extending Source, and providing a new Row for each iteration.
     """
 
-    def limit(self, n: int = 10):
-        """return a generator limited to the first n elements"""
-        iterator = iter(self)
-        return (next(iterator) for _ in range(n))
+    def __init__(self, rows: Sequence[Row]):
+        self.rows = rows
+
+    def __iter__(self):
+        yield from self.rows
 
     def head(self, n: int = 10) -> List[Row]:
         """return a list built from the first n elements"""
@@ -68,16 +69,21 @@ class Source(Iterable):
         return row
 
     def skip_header(self, lines: int = 1):
-        """skip n lines, default is to skip only the first line"""
-        return islice(self, lines, None)
+        """return a new Source with first n lines skipped, default is to skip only the first line"""
+        return Source(islice(self, lines, None))
+
+    def limit(self, n: int = 10):
+        """return a new Source limited to the first n elements"""
+        iterator = iter(self)
+        return Source((next(iterator) for _ in range(n)))
 
     @classmethod
-    def create_source_from_file(cls, filename: str, provider: str = None):
+    def create_source_from_file(cls, filename: str, provider: str = None, ignore_header: bool = False):
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
         if filename[-8:] == ".json.gz" or filename[-5:] == ".json":
             return SourceJson(filename, provider)
         else:
-            return SourceFile(filename, provider)
+            return SourceFile(filename, provider, ignore_header)
 
     def reset(self):
         pass
@@ -171,7 +177,7 @@ class SourceStdin(Source):
 class SourceFile(Source):
     """Read raw data from a text file. File may be gzipped. File may be a single-file ZIP archive."""
 
-    def __init__(self, filename: str, provider: str = None):
+    def __init__(self, filename: str, provider: str = None, ignore_header: bool = False):
         """
         Parameters
         ----------
@@ -180,6 +186,7 @@ class SourceFile(Source):
         """
         self.filename = filename
         self.provider = provider if provider else basename(filename)
+        self.ignore_header = ignore_header
 
         try:
             if self.filename[-3:] == ".gz":
@@ -196,6 +203,8 @@ class SourceFile(Source):
 
     def __iter__(self):
         with self._cm as f:
+            if self.ignore_header:
+                next(f)
             for line in f:
                 yield Row(self.provider, line.rstrip("\r\n"))
 
@@ -219,7 +228,7 @@ class SourceJson(Source):
                 elif filename[-4:] == ".zip":
                     zf = ZipFile(filename, 'r')
                     f = zf.namelist()[0]
-                    self._cm = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')                  
+                    self._cm = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')
                 else:
                     stream = open(filename, "r", encoding="utf-8")
             else:
@@ -235,6 +244,7 @@ class SourceJson(Source):
 
     def reset(self):
         pass
+
 
 # a file downloaded from FTP : (local_filename, remote_filename)
 FtpFile = Tuple[str, str]
@@ -317,5 +327,5 @@ class SourceFtp(Source):
         return downloaded_files
 
     def reset(self):
-        self.__init__(self.host, self.user, self.passwd, \
-            self.paths, self.f_match, self.provider, self.source_factory)
+        self.__init__(self.host, self.user, self.passwd,
+                      self.paths, self.f_match, self.provider, self.source_factory)
