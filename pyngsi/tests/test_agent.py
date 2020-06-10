@@ -44,3 +44,17 @@ def test_agent_with_processing(mocker):
     agent.close()
     assert sink.write.call_count == 5  # pylint: disable=no-member
     assert agent.stats == agent.Stats(5, 5, 5, 0, 0)
+
+def test_agent_with_side_effect(mocker):
+
+    def side_effect(row, sink, datamodel):
+        print(f"{datamodel=}")
+
+    src = SourceSampleOrion(count=5, delay=0)
+    sink = SinkNull()
+    mocker.spy(sink, "write")
+    agent = NgsiAgent.create_agent(src, sink, build_entity_sample_orion, side_effect)
+    agent.run()
+    agent.close()
+    assert sink.write.call_count == 5  # pylint: disable=no-member
+    assert agent.stats == agent.Stats(5, 5, 5, 0, 0)

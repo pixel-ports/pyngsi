@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyngsi",
-    version="1.2.4",
+    version="1.2.5",
     description="NGSI Python framework intended to build a Fiware NGSI Agent",
     long_description=long_description,
     long_description_content_type="text/markdown",

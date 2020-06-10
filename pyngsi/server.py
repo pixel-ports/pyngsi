@@ -80,7 +80,8 @@ class ServerHttpUpload(Server):
                  endpoint: str = "/upload",
                  debug: bool = False,
                  provider: str = None,
-                 ignore_header: bool = False):
+                 ignore_header: bool = False,
+                 jsonpath: str = None):
 
         super().__init__(provider, ignore_header)
         self.host = host

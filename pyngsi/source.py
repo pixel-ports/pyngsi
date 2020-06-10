@@ -78,10 +78,10 @@ class Source(Iterable):
         return Source((next(iterator) for _ in range(n)))
 
     @classmethod
-    def create_source_from_file(cls, filename: str, provider: str = None, ignore_header: bool = False):
+    def create_source_from_file(cls, filename: str, provider: str = None, ignore_header: bool = False, json_path: str = None):
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
         if filename[-8:] == ".json.gz" or filename[-5:] == ".json":
-            return SourceJson(filename, provider)
+            return SourceJson(filename, provider, path=json_path)
         else:
             return SourceFile(filename, provider, ignore_header)
 
@@ -215,8 +215,18 @@ class SourceFile(Source):
 class SourceJson(Source):
     """Read JSON formatted data from Standard Input"""
 
-    def __init__(self, input: str = None, provider: str = None):
+    def jsonpath(self, path: List):
+        obj = self.json_obj
+        for p in path:
+            if isinstance(p, int):
+                obj = obj[p]
+            else:
+                obj = obj.get(p)
+        return obj
+
+    def __init__(self, input: str = None, provider: str = None, path: str = None):
         self.provider = provider
+        self.path = path
         if not isinstance(input, str):
             self.json_obj = input
         else:
@@ -236,11 +246,15 @@ class SourceJson(Source):
             self.json_obj = json.load(stream)
 
     def __iter__(self):
-        if isinstance(self.json_obj, list):
-            for j in self.json_obj:
+        obj = self.json_obj
+        if self.path:
+            obj = self.jsonpath(self.path)
+
+        if isinstance(obj, list):
+            for j in obj:
                 yield Row(self.provider, j)
         else:
-            yield Row(self.provider, self.json_obj)
+            yield Row(self.provider, obj)
 
     def reset(self):
         pass

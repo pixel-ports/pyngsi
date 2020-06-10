@@ -33,7 +33,8 @@ class NgsiAgent(ABC):
     @staticmethod
     def create_agent(src: Union[Source, Server] = SourceStdin(),
                      sink: Sink = SinkStdout(),
-                     process: Callable = lambda x: x.record):
+                     process: Callable = lambda x: x.record,
+                     side_effect: Callable[[Row, Sink, DataModel], None] = None):
         """
         Factory method to create the agent depending on the source push/pull.
 
@@ -42,9 +43,9 @@ class NgsiAgent(ABC):
         :param process: a function that takes an input row from the source and outputs a NGSI datamodel
         """
         if isinstance(src, Source):
-            return NgsiAgentPull(src, sink, process)
+            return NgsiAgentPull(src, sink, process, side_effect)
         elif isinstance(src, Server):
-            return NgsiAgentServer(src, sink, process)
+            return NgsiAgentServer(src, sink, process, side_effect)
         else:
             raise NgsiException(
                 f"Cannot create agent. Unknown source type {type(src)}")
@@ -106,13 +107,15 @@ class NgsiAgentPull(NgsiAgent):
     def __init__(self,
                  source: Source = None,
                  sink: Sink = None,
-                 process: Callable = lambda row, *args, **kwargs: row.record):
+                 process: Callable = lambda row, *args, **kwargs: row.record,
+                 side_effect: Callable = None):
         logger.info("init NGSI agent")
         self.source = source if source else SourceStdin()
         logger.info(f"source = [{self.source.__class__.__name__}]")
         self.sink = sink if sink else SinkStdout()
         logger.info(f"sink = [{self.sink.__class__.__name__}]")
         self.process = process
+        self.side_effect = side_effect
         self.stats = NgsiAgent.Stats()
 
     @property
@@ -133,6 +136,8 @@ class NgsiAgentPull(NgsiAgent):
                 msg = x.json() if isinstance(x, DataModel) else x
                 self.sink.write(msg)
                 self.stats.output += 1
+                if self.side_effect:
+                    self.side_effect(row, self.sink, x)
             except Exception as e:
                 self.stats.error += 1
                 logger.error(f"Cannot process record : {e}")
@@ -179,13 +184,15 @@ class NgsiAgentServer(NgsiAgent):
     def __init__(self,
                  server: pyngsi.server.Server = None,
                  sink: Sink = None,
-                 process: Callable = lambda row, *args, **kwargs: row.record):
+                 process: Callable = lambda row, *args, **kwargs: row.record,
+                 side_effect: Callable[[Row, Sink, DataModel], None] = None):
         logger.info("init NGSI agent")
         self.server = server
         logger.info(f"server = [{self.server.__class__.__name__}]")
         self.sink = sink if sink else SinkStdout()
         logger.info(f"sink = [{self.sink.__class__.__name__}]")
         self.process = process
+        self.side_effect = side_effect
         self.server_status = self.ServerStatus()
         self.stats = NgsiAgent.Stats()
 

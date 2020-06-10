@@ -124,3 +124,17 @@ def test_source_json_array(mocker):
     assert rows[0].record["fruit"] == "Apple"
     assert rows[1].provider == "test.json"
     assert rows[1].record["fruit"] == "Lime"
+
+
+def test_source_json_path(mocker):
+    input_data = r"""{"dataset": {"data": [ {"fruit": "Apple", "size": "Large", "color": "Red"},
+    {"fruit": "Lime", "size": "Medium", "color": "Yellow"} ] } }"""
+    mock_open = mocker.mock_open(read_data=input_data)
+    mocker.patch("builtins.open", mock_open)
+    src = SourceJson("test.json", path=["dataset", "data"])
+    rows: List[Row] = [x for x in src]
+    assert len(rows) == 2
+    assert rows[0].provider == "test.json"
+    assert rows[0].record["fruit"] == "Apple"
+    assert rows[1].provider == "test.json"
+    assert rows[1].record["fruit"] == "Lime"
