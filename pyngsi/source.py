@@ -280,6 +280,7 @@ class SourceFtp(Source):
     def __init__(self, host: str, user: str = "anonymous",
                  passwd: str = "guest",
                  paths: List[str] = ["/pub"],
+                 use_tls: bool = False,
                  f_match: Callable[[str], bool] = lambda x: False,
                  provider: str = None,
                  source_factory=Source.create_source_from_file):
@@ -293,13 +294,14 @@ class SourceFtp(Source):
         self.host = host
         self.user = user
         self.passwd = passwd
+        self.use_tls = use_tls
         self.paths = paths
         self.f_match = f_match
         self.provider = provider
         self.source_factory = source_factory
 
         # connect to FTP server
-        self.ftp = FtpClient(host, user, passwd)
+        self.ftp = FtpClient(host, user, passwd, use_tls)
 
         # retrieve a list of files we're interested in
         remote_files = self._retrieve_filelist(paths, f_match)

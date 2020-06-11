@@ -2,13 +2,26 @@
 # -*- coding: utf-8 -*-
 
 import ftplib
+import ssl
 import tempfile
 import shutil
 
 from loguru import logger
-from ftplib import FTP
+from ftplib import FTP, FTP_TLS
 from typing import List
 from os.path import basename, join
+
+# https://stackoverflow.com/questions/14659154/ftpes-session-reuse-required
+class MyFTP_TLS(ftplib.FTP_TLS):
+    """Explicit FTPS, with shared TLS session"""
+
+    def ntransfercmd(self, cmd, rest=None):
+        conn, size = ftplib.FTP.ntransfercmd(self, cmd, rest)
+        if self._prot_p:
+            conn = self.context.wrap_socket(conn,
+                                            server_hostname=self.host,
+                                            session=self.sock.session)  # this is the fix
+        return conn, size
 
 
 class FtpClientException(Exception):
@@ -18,11 +31,18 @@ class FtpClientException(Exception):
 class FtpClient():
 
     def __init__(self, host: str, user: str = "anonymous",
-                 passwd: str = "guest"):
+                 passwd: str = "guest", use_tls: bool = False):
         logger.debug("Connect to FTP server")
-        self.ftp = FTP(host)
+        if use_tls:
+            self.ftp = MyFTP_TLS(host)
+            self.ftp.ssl_version = ssl.PROTOCOL_TLS
+        else:
+            self.ftp = FTP(host)
         try:
             self.ftp.login(user, passwd)
+            self.ftp.set_pasv(True)
+            if use_tls:
+                self.ftp.prot_p()
         except ftplib.error_perm as e:
             error_code = int(str(e).split()[0])
             if (error_code == 503):
