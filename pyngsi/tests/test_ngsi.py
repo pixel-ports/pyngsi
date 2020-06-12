@@ -120,3 +120,16 @@ def test_metadata():
     assert m.json() == r'{"id": "AirQualityObserved", "type": "AirQualityObserved", ' \
         r'"CO": {"value": 500, "type": "Integer", "metadata": {"unitCode": {"value": "GP"}}}, ' \
         r'"NO": {"value": 45, "type": "Integer", "metadata": {"unitCode": {"value": "GQ"}}}}'
+
+
+def test_add_relationship():
+    m = DataModel("id", "type")
+    m.add_relationship("refStore", "unit001", "Shelf")
+    assert m.json() == r'{"id": "id", "type": "type", ' \
+        r'"refStore": {"value": "urn:ngsi-ld:unit001:Shelf", "type": "Relationship"}}'
+
+
+def test_add_relationship_bad_ref():
+    m = DataModel("id", "type")
+    with pytest.raises(NgsiException, match=r".*Bad relationship.*"):
+        m.add_relationship("store", "unit001", "Shelf")

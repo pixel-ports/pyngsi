@@ -62,10 +62,18 @@ class DataModel(dict):
         elif isinstance(value, Sequence):
             t, v = "Array", value
         else:
-            raise NgsiException(f"Cannot map {type(value)} to NGSI type. {name=} {value=}")
+            raise NgsiException(
+                f"Cannot map {type(value)} to NGSI type. {name=} {value=}")
         self[name] = v if t == "Array" else {"value": v, "type": t}
         if metadata:
             self[name]["metadata"] = metadata
+
+    def add_relationship(self, rel_name: str, ref_type: str, ref_id: str):
+        if not rel_name.startswith("ref"):
+            raise NgsiException(
+                f"Bad relationship name : {rel_name}. Relationship attributes must use prefix 'ref'")
+        t, v = "Relationship", f"urn:ngsi-ld:{ref_type}:{ref_id}"
+        self[rel_name] = {"value": v, "type": t}
 
     def json(self):
         """Returns the datamodel in json format"""
