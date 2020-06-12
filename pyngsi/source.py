@@ -283,7 +283,8 @@ class SourceFtp(Source):
                  use_tls: bool = False,
                  f_match: Callable[[str], bool] = lambda x: False,
                  provider: str = None,
-                 source_factory=Source.create_source_from_file):
+                 source_factory=Source.create_source_from_file,
+                 **kwargs):
         """
         Parameters
         ----------
@@ -299,6 +300,7 @@ class SourceFtp(Source):
         self.f_match = f_match
         self.provider = provider
         self.source_factory = source_factory
+        self.kwargs = kwargs
 
         # connect to FTP server
         self.ftp = FtpClient(host, user, passwd, use_tls)
@@ -321,7 +323,7 @@ class SourceFtp(Source):
             localname, remotename = ftpfile
             logger.info(f"process local {localname}")
             provider = self.provider if self.provider else f"ftp://{self.host}{remotename}"
-            source = self.source_factory(localname, provider)
+            source = self.source_factory(localname, provider, self.kwargs)
             yield from source
         self.ftp.clean()
 
@@ -344,4 +346,4 @@ class SourceFtp(Source):
 
     def reset(self):
         self.__init__(self.host, self.user, self.passwd,
-                      self.paths, self.f_match, self.provider, self.source_factory)
+                      self.paths, self.f_match, self.provider, self.source_factory, self.kwargs)
