@@ -24,6 +24,7 @@ from more_itertools import take
 from itertools import islice
 from zipfile import ZipFile
 from io import TextIOWrapper
+from pathlib import Path
 
 from pyngsi.ftpclient import FtpClient
 
@@ -48,6 +49,8 @@ class Source(Iterable):
     The library provides many sources.
     One can code its own Source just by extending Source, and providing a new Row for each iteration.
     """
+
+    registered_extensions = {}
 
     def __init__(self, rows: Sequence[Row]):
         self.rows = rows
@@ -78,12 +81,26 @@ class Source(Iterable):
         return Source((next(iterator) for _ in range(n)))
 
     @classmethod
-    def create_source_from_file(cls, filename: str, provider: str = None, ignore_header: bool = False, json_path: str = None):
+    def create_source_from_file(cls, filename: str, provider: str = None, **kwargs):
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
-        if filename[-8:] == ".json.gz" or filename[-5:] == ".json":
-            return SourceJson(filename, provider, path=json_path)
-        else:
-            return SourceFile(filename, provider, ignore_header)
+        if "*" in cls.registered_extensions:
+            klass, kwargs = cls.registered_extensions["*"]
+            return klass(filename, **kwargs)
+        ext = (''.join(Path(filename).suffixes))[1:]
+        if ext in cls.registered_extensions:
+            klass, kwargs = cls.registered_extensions[ext]
+            return klass(filename, **kwargs)
+        if ext == ".json.gz" or ext == ".json":
+            return SourceJson(filename, kwargs)
+        return SourceFile(filename, kwargs)
+
+    @classmethod
+    def register_extension(cls, ext: str, src, **kwargs):
+        cls.registered_extensions[ext] = (src, kwargs)
+
+    @classmethod
+    def unregister_extension(cls, ext: str):
+        del cls.registered_extensions[ext]
 
     def reset(self):
         pass
@@ -190,23 +207,22 @@ class SourceFile(Source):
 
         try:
             if self.filename[-3:] == ".gz":
-                self._cm = gzip.open(self.filename, "rt", encoding="utf-8")
+                self.stream = gzip.open(self.filename, "rt", encoding="utf-8")
             elif self.filename[-4:] == ".zip":
                 zf = ZipFile(self.filename, 'r')
                 f = zf.namelist()[0]
-                self._cm = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')
+                self.stream = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')
             else:
-                self._cm = open(self.filename, "r", encoding="utf-8")
+                self.stream = open(self.filename, "r", encoding="utf-8")
         except Exception as e:
             logger.critical(f"Cannot open file {self.filename} : {e}")
             sys.exit(1)
 
     def __iter__(self):
-        with self._cm as f:
-            if self.ignore_header:
-                next(f)
-            for line in f:
-                yield Row(self.provider, line.rstrip("\r\n"))
+        if self.ignore_header:
+            next(self.stream)
+        for line in self.stream:
+            yield Row(self.provider, line.rstrip("\r\n"))
 
     def reset(self):
         self.__init__(self.filename, self.provider)
@@ -283,8 +299,7 @@ class SourceFtp(Source):
                  use_tls: bool = False,
                  f_match: Callable[[str], bool] = lambda x: False,
                  provider: str = None,
-                 source_factory=Source.create_source_from_file,
-                 **kwargs):
+                 source_factory=Source.create_source_from_file):
         """
         Parameters
         ----------
@@ -300,7 +315,6 @@ class SourceFtp(Source):
         self.f_match = f_match
         self.provider = provider
         self.source_factory = source_factory
-        self.kwargs = kwargs
 
         # connect to FTP server
         self.ftp = FtpClient(host, user, passwd, use_tls)
@@ -323,7 +337,7 @@ class SourceFtp(Source):
             localname, remotename = ftpfile
             logger.info(f"process local {localname}")
             provider = self.provider if self.provider else f"ftp://{self.host}{remotename}"
-            source = self.source_factory(localname, provider, self.kwargs)
+            source = self.source_factory(localname, provider)
             yield from source
         self.ftp.clean()
 
@@ -346,4 +360,4 @@ class SourceFtp(Source):
 
     def reset(self):
         self.__init__(self.host, self.user, self.passwd,
-                      self.paths, self.f_match, self.provider, self.source_factory, self.kwargs)
+                      self.paths, self.f_match, self.provider, self.source_factory)

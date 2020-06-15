@@ -4,6 +4,7 @@
 from pyngsi.source import Row, SourceSampleOrion
 from pyngsi.sink import SinkNull
 from pyngsi.agent import NgsiAgent, build_entity_unknown, build_entity_sample_orion
+from pyngsi.ngsi import DataModel
 
 
 def test_build_entity_unknown():
@@ -45,16 +46,19 @@ def test_agent_with_processing(mocker):
     assert sink.write.call_count == 5  # pylint: disable=no-member
     assert agent.stats == agent.Stats(5, 5, 5, 0, 0)
 
-def test_agent_with_side_effect(mocker):
+# def test_agent_with_side_effect(mocker):
 
-    def side_effect(row, sink, datamodel):
-        print(f"{datamodel=}")
+#     def side_effect(row, sink, datamodel):
+#         m = DataModel(id=id, type="Room")
+#         m.add("temperature", float(temperature))
+#         m.add("pressure", int(pressure))
+#         print(f"{datamodel=}")
 
-    src = SourceSampleOrion(count=5, delay=0)
-    sink = SinkNull()
-    mocker.spy(sink, "write")
-    agent = NgsiAgent.create_agent(src, sink, build_entity_sample_orion, side_effect)
-    agent.run()
-    agent.close()
-    assert sink.write.call_count == 5  # pylint: disable=no-member
-    assert agent.stats == agent.Stats(5, 5, 5, 0, 0)
+#     src = SourceSampleOrion(count=5, delay=0)
+#     sink = SinkNull()
+#     mocker.spy(sink, "write")
+#     agent = NgsiAgent.create_agent(src, sink, build_entity_sample_orion, side_effect)
+#     agent.run()
+#     agent.close()
+#     assert sink.write.call_count == 5  # pylint: disable=no-member
+#     assert agent.stats == agent.Stats(5, 5, 5, 0, 0)
