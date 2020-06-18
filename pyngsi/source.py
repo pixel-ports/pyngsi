@@ -25,6 +25,7 @@ from itertools import islice
 from zipfile import ZipFile
 from io import TextIOWrapper
 from pathlib import Path
+from deprecated import deprecated
 
 from pyngsi.ftpclient import FtpClient
 
@@ -81,7 +82,7 @@ class Source(Iterable):
         return Source((next(iterator) for _ in range(n)))
 
     @classmethod
-    def create_source_from_file(cls, filename: str, provider: str = None, **kwargs):
+    def from_file(cls, filename: str, provider: str = None, **kwargs):
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
         if "*" in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions["*"]
@@ -93,6 +94,11 @@ class Source(Iterable):
         if ext == ".json.gz" or ext == ".json":
             return SourceJson(filename, kwargs)
         return SourceFile(filename, kwargs)
+
+    @classmethod
+    @deprecated(version='1.2.5', reason="This method will be removed soon")
+    def create_source_from_file(cls, filename: str, provider: str = None, **kwargs):
+        return Source.from_file(filename, provider, **kwargs)
 
     @classmethod
     def register_extension(cls, ext: str, src, **kwargs):

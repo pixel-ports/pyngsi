@@ -37,10 +37,7 @@ def test_unregister_source():
 def test_register_source_then_use_it():
     filename = pkg_resources.resource_filename(__name__, "data/test.xlsx")
     Source.register_extension("xlsx", SourceMicrosoftExcel)
-    srcklass, kwargs = Source.registered_extensions["xlsx"]
-    assert srcklass == SourceMicrosoftExcel
-    assert kwargs == {}
-    src = Source.create_source_from_file(filename)
+    src = Source.from_file(filename)
     rows = [row for row in src]
     assert len(rows) == 4
     assert rows[0].provider == "test.xlsx"
@@ -54,7 +51,7 @@ def test_register_source_with_args_then_use_it():
     filename = pkg_resources.resource_filename(__name__, "data/test.xlsx")
     Source.register_extension(
         "xlsx", SourceMicrosoftExcel, sheetid=1, ignore=1)
-    src = Source.create_source_from_file(filename)
+    src = Source.from_file(filename)
     rows = [row for row in src]
     assert len(rows) == 3
     assert rows[0].provider == "test.xlsx"

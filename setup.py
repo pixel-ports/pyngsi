@@ -28,6 +28,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=False,
     install_requires=["loguru", "requests", "shortuuid",
-                      "more_itertools", "geojson", "flask", "cherrypy", "schedule", "openpyxl"],
+                      "more_itertools", "geojson", "flask", "cherrypy", "schedule", "openpyxl", "Deprecated"],
     python_requires=">=3.8"
 )
