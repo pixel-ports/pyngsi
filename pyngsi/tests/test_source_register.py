@@ -8,8 +8,38 @@ from pyngsi.more_sources import SourceMicrosoftExcel
 
 
 def test_register_source():
+    class MySource(Source):
+        pass
+
+    Source.register_extension("test", MySource)
+    srcklass, kwargs = Source.registered_extensions["test"]
+    assert srcklass == MySource
+    assert kwargs == {}
+
+
+def test_register_source_with_args():
+    class MySource(Source):
+        pass
+
+    Source.register_extension("test", MySource, key1="value1", key2="value2")
+    srcklass, kwargs = Source.registered_extensions["test"]
+    assert srcklass == MySource
+    assert kwargs == {"key1": "value1", "key2": "value2"}
+
+
+def test_unregister_source():
+    test_register_source()
+    assert Source.registered_extensions["test"] is not None
+    Source.unregister_extension("test")
+    assert "test" not in Source.registered_extensions
+
+
+def test_register_source_then_use_it():
     filename = pkg_resources.resource_filename(__name__, "data/test.xlsx")
     Source.register_extension("xlsx", SourceMicrosoftExcel)
+    srcklass, kwargs = Source.registered_extensions["xlsx"]
+    assert srcklass == SourceMicrosoftExcel
+    assert kwargs == {}
     src = Source.create_source_from_file(filename)
     rows = [row for row in src]
     assert len(rows) == 4
@@ -19,9 +49,11 @@ def test_register_source():
     assert rows[2].record == "data1,11,12,13"
     assert rows[3].record == "data2,14,15,16"
 
-def test_register_source_with_args():
+
+def test_register_source_with_args_then_use_it():
     filename = pkg_resources.resource_filename(__name__, "data/test.xlsx")
-    Source.register_extension("xlsx", SourceMicrosoftExcel, sheetid=1, ignore=1)
+    Source.register_extension(
+        "xlsx", SourceMicrosoftExcel, sheetid=1, ignore=1)
     src = Source.create_source_from_file(filename)
     rows = [row for row in src]
     assert len(rows) == 3
