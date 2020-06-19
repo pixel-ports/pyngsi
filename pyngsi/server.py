@@ -54,7 +54,7 @@ class Server():
         try:
             if self.ignore_header:
                 src = src.skip_header()
-            agent = NgsiAgentPull(src, self.agent.sink, self.agent.process)
+            agent = NgsiAgentPull(src, self.agent.sink, self.agent.process, self.agent.side_effect)
             logger.info(f"{self.ignore_header=}")
             agent.run()
             agent.close()
