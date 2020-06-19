@@ -54,8 +54,8 @@ def test_agent_with_side_effect(mocker):
         # here the side-entity is a room entity for a Building datamodel
         m = DataModel(
             id=f"Building:MainBuilding:Room:{datamodel['id']}", type="Room")
-        sink.write(m)
-        return 1
+        sink.write(m.json())
+        return 1 # number of entities created in the function
 
     src = SourceSampleOrion(count=5, delay=0)
     sink = SinkNull()
