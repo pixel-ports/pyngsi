@@ -44,6 +44,8 @@ pip install pyngsi
 - [flask](https://palletsprojects.com/p/flask)
 - [cherrypy](https://cherrypy.org)
 - [schedule](https://github.com/dbader/schedule)
+- [openpyxl](https://openpyxl.readthedocs.io)
+- [Deprecated](https://github.com/tantale/deprecated)
 
 ## License
 
