@@ -5,9 +5,9 @@
 - Added `FTPS support` to SourceFtp
 - Added `relationShip attribute` type to NGSI DataModel. To reference another entity (i.e. refDevice)
 - Added `Microsoft Excel support` : SourceMicrosoftExcel
-- Added `Source registration` : provide your own Source and associate it with a file extension (example7)
+- Added `Source registration` : provide your own Source and associate it with a file extension
 - Deprecated Source.create_souce_from_file(). Replaced by `Source.from_file()`
-- Added `side effect` feature to the Agent : allows the Agent to create additional entities (example8)
+- Added `side effect` feature to the Agent : allows the Agent to create additional entities
 - Added `kwargs to SourceFTP` constructor
 
 # pyngsi 1.2.4

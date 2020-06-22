@@ -91,9 +91,9 @@ class Source(Iterable):
         if ext in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions[ext]
             return klass(filename, **kwargs)
-        if ext == ".json.gz" or ext == ".json":
-            return SourceJson(filename, kwargs)
-        return SourceFile(filename, kwargs)
+        if ext == "json.gz" or ext == "json":
+            return SourceJson(filename, **kwargs)
+        return SourceFile(filename, **kwargs)
 
     @classmethod
     @deprecated(version='1.2.5', reason="This method will be removed soon")
@@ -305,7 +305,7 @@ class SourceFtp(Source):
                  use_tls: bool = False,
                  f_match: Callable[[str], bool] = lambda x: False,
                  provider: str = None,
-                 source_factory=Source.create_source_from_file):
+                 source_factory=Source.from_file):
         """
         Parameters
         ----------
