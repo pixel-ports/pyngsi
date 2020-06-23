@@ -77,7 +77,7 @@ class DataModel(dict):
 
     def json(self):
         """Returns the datamodel in json format"""
-        return json.dumps(self, default=self.serializer)
+        return json.dumps(self, default=self.serializer, ensure_ascii=False)
 
     def pprint(self):
         """Returns the datamodel pretty-json-formatted"""
