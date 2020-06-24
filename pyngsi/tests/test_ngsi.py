@@ -123,13 +123,14 @@ def test_metadata():
 
 
 def test_add_relationship():
+    # https://github.com/Fiware/tutorials.Entity-Relationships
     m = DataModel("id", "type")
-    m.add_relationship("refStore", "unit001", "Shelf")
+    m.add_relationship("refStore", "Shelf", "001")
     assert m.json() == r'{"id": "id", "type": "type", ' \
-        r'"refStore": {"value": "urn:ngsi-ld:unit001:Shelf", "type": "Relationship"}}'
+        r'"refStore": {"value": "urn:ngsi-ld:Shelf:001", "type": "Relationship"}}'
 
 
 def test_add_relationship_bad_ref():
     m = DataModel("id", "type")
     with pytest.raises(NgsiException, match=r".*Bad relationship.*"):
-        m.add_relationship("store", "unit001", "Shelf")
+        m.add_relationship("store", "Shelf", "001")

@@ -29,10 +29,11 @@ class Server():
     Stats are available at the end when calling the close() method, or at any time, when calling the endpoint status if available.
     """
 
-    def __init__(self, provider=None, ignore_header=False):
+    def __init__(self, provider=None, ignore_header=False, jsonpath=None):
         self.agent = None
         self.provider = provider
         self.ignore_header = ignore_header
+        self.jsonpath = jsonpath
 
     def set_agent(self, agent):
         self.agent = agent
@@ -56,6 +57,7 @@ class Server():
                 src = src.skip_header()
             agent = NgsiAgentPull(src, self.agent.sink, self.agent.process, self.agent.side_effect)
             logger.info(f"{self.ignore_header=}")
+            logger.info(f"{self.jsonpath=}")
             agent.run()
             agent.close()
             if self.agent:
@@ -83,7 +85,7 @@ class ServerHttpUpload(Server):
                  ignore_header: bool = False,
                  jsonpath: str = None):
 
-        super().__init__(provider, ignore_header)
+        super().__init__(provider, ignore_header, jsonpath)
         self.host = host
         self.port = port
         self.wsgi_port = wsgi_port
@@ -149,7 +151,7 @@ class ServerHttpUpload(Server):
                 provider = self.provider if self.provider else filename
                 if ext == 'json':
                     data = json.load(file)
-                    src: Source = SourceJson(data, provider=provider)
+                    src: Source = SourceJson(data, provider=provider, path=self.jsonpath)
                 else:
                     data = file.read().decode('utf-8')
                     logger.info(f"{type(data)=}")
@@ -160,7 +162,7 @@ class ServerHttpUpload(Server):
                 if request.is_json:
                     logger.info("request is json")
                     data = request.get_json()
-                    src: Source = SourceJson(data)
+                    src: Source = SourceJson(data, provider=self.provider, path=self.jsonpath)
                 else:
                     logger.info("request is plain text")
                     data = request.get_data().decode("utf-8", errors="replace")

@@ -9,6 +9,7 @@
 - Deprecated Source.create_souce_from_file(). Replaced by `Source.from_file()`
 - Added `side effect` feature to the Agent : allows the Agent to create additional entities
 - Added `kwargs to SourceFTP` constructor
+- Fixed bad JSON encoding in datamodel
 
 # pyngsi 1.2.4
 ## May 18, 2020
