@@ -81,4 +81,4 @@ class DataModel(dict):
 
     def pprint(self):
         """Returns the datamodel pretty-json-formatted"""
-        print(json.dumps(self, indent=2))
+        print(json.dumps(self, default=self.serializer, indent=2))
