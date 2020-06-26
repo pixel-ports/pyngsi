@@ -1,5 +1,5 @@
 # pyngsi 1.2.5
-## June 19, 2020
+## June 26, 2020
 
 - Added `JSON Path` feature : JSON sources accept a json path to target incoming rows
 - Added `FTPS support` to SourceFtp

@@ -20,7 +20,7 @@ Writing a [NGSI](https://fiware.github.io/specifications/ngsiv2/stable) agent th
 
 - Map Python-native data to NGSI entities
 - Write NGSI entities to Fiware [Orion](https://fiware-orion.readthedocs.io/en/master)
-- Handle incoming data through a common interace
+- Handle incoming data through a common interface
 - Compute statistics
 - Allow visualization/debugging facilities
 
