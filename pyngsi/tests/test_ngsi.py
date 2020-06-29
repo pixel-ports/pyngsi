@@ -105,9 +105,10 @@ def test_add_field_sequence():
            d1]
     m.add("collection", seq)
     assert m.json() == r'{"id": "id", "type": "type", ' \
-        r'"collection": [{"major": "standard", "minor": "surface", "elapsed": 3600}, ' \
+        r'"collection": {"value": [{"major": "standard", "minor": "surface", "elapsed": 3600}, ' \
         r'{"major": "standard", "minor": "tropopause", "elapsed": 1800}, ' \
-        r'{"major": "standard", "minor": "surface", "dateObserved": "2019-06-01 18:30:00"}]}'
+        r'{"major": "standard", "minor": "surface", "dateObserved": "2019-06-01 18:30:00"}], ' \
+        r'"type": "Array"}}'
 
 
 # https://fiware-datamodels.readthedocs.io/en/latest/Environment/AirQualityObserved/doc/spec/index.html#representing-air-pollutants

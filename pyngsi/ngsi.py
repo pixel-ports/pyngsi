@@ -64,7 +64,8 @@ class DataModel(dict):
         else:
             raise NgsiException(
                 f"Cannot map {type(value)} to NGSI type. {name=} {value=}")
-        self[name] = v if t == "Array" else {"value": v, "type": t}
+        #self[name] = v if t == "Array" else {"value": v, "type": t}
+        self[name] = {"value": v, "type": t}
         if metadata:
             self[name]["metadata"] = metadata
 

@@ -1,3 +1,8 @@
+# pyngsi 1.2.6
+## June 29, 2020
+
+- Fixed bad handling of array's in the DataModel
+
 # pyngsi 1.2.5
 ## June 26, 2020
 
