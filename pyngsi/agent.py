@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
+
 from dataclasses import dataclass
 from shortuuid import uuid
 from loguru import logger
@@ -8,7 +10,7 @@ from datetime import datetime
 from typing import Callable, Union
 from abc import ABC, abstractmethod
 
-from pyngsi.source import Row, Source, SourceStdin
+from pyngsi.source import Row, Source, SourceStream
 from pyngsi.sink import Sink, SinkStdout
 from pyngsi.ngsi import DataModel
 from pyngsi.server import Server
@@ -31,7 +33,7 @@ class NgsiAgent(ABC):
         pass
 
     @staticmethod
-    def create_agent(src: Union[Source, Server] = SourceStdin(),
+    def create_agent(src: Union[Source, Server] = SourceStream(sys.stdin),
                      sink: Sink = SinkStdout(),
                      process: Callable = lambda x: x.record,
                      side_effect: Callable[[Row, Sink, DataModel], int] = None):
@@ -114,7 +116,7 @@ class NgsiAgentPull(NgsiAgent):
                  process: Callable = lambda row, *args, **kwargs: row.record,
                  side_effect: Callable = None):
         logger.info("init NGSI agent")
-        self.source = source if source else SourceStdin()
+        self.source = source if source else SourceStream(sys.stdin)
         logger.info(f"source = [{self.source.__class__.__name__}]")
         self.sink = sink if sink else SinkStdout()
         logger.info(f"sink = [{self.sink.__class__.__name__}]")

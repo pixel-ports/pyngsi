@@ -27,6 +27,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from deprecated import deprecated
 
+from pyngsi.utils import stream_from
 from pyngsi.ftpclient import FtpClient
 
 
@@ -92,13 +93,26 @@ class Source(Iterable):
         if "*" in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions["*"]
             return klass(filename, **kwargs)
+        #ext = Path(filename).suffix
         ext = (''.join(Path(filename).suffixes))[1:]
         if ext in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions[ext]
             return klass(filename, **kwargs)
-        if ext == "json.gz" or ext == "json":
+        stream, filename = stream_from(filename)
+        if ext == ".json":
             return SourceJson(filename, **kwargs)
-        return SourceFile(filename, **kwargs)
+        return SourceStream(stream, **kwargs)
+
+        # if "*" in cls.registered_extensions:
+        #     klass, kwargs = cls.registered_extensions["*"]
+        #     return klass(filename, **kwargs)
+        # ext = (''.join(Path(filename).suffixes))[1:]
+        # if ext in cls.registered_extensions:
+        #     klass, kwargs = cls.registered_extensions[ext]
+        #     return klass(filename, **kwargs)
+        # if ext == "json.gz" or ext == "json":
+        #     return SourceJson(filename, **kwargs)
+        # return SourceFile(filename, **kwargs)
 
     @classmethod
     @deprecated(version='1.2.5', reason="This method will be removed soon")
@@ -170,33 +184,13 @@ class SourceSampleOrion(Source):
 
 class SourceStream(Source):
 
-    """
-    A SourceList is Source built from a Python list.
-
-    """
-
     def __init__(self, stream: Iterable, provider: str = "user"):
-        self.rows = stream
+        self.stream = stream
         self.provider = provider
 
     def __iter__(self):
-        for record in self.rows:
+        for record in self.stream:
             yield Row(self.provider, record)
-
-    def reset(self):
-        pass
-
-
-class SourceStdin(Source):
-    """Read raw data from Standard Input"""
-
-    def __init__(self, provider="stdin"):
-        self.stream = sys.stdin
-        self.provider = provider
-
-    def __iter__(self):
-        for line in self.stream:
-            yield Row(self.provider, line.rstrip("\r\n"))
 
     def reset(self):
         pass

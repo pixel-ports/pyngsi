@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
 import pkg_resources
 
 from typing import List
 
-from pyngsi.source import Row, Source, SourceStream, SourceSingle, SourceStdin, \
-    SourceSampleOrion, SourceFile, SourceJson
+from pyngsi.source import Row, Source, SourceStream, SourceSingle, SourceSampleOrion, SourceFile, SourceJson
 
 
 def test_method_limit():
@@ -54,12 +54,12 @@ def test_source_single():
 
 def test_source_stdin(mocker):
     mocker.patch('sys.stdin', {"input1", "input2"})
-    src = SourceStdin()
+    src = SourceStream(stream=sys.stdin)
     rows: List[Row] = [x for x in src]
     assert len(rows) == 2
     # pytest capture input/output could mess the order
-    assert Row('stdin', 'input1') in rows
-    assert Row('stdin', 'input2') in rows
+    assert Row('user', 'input1') in rows
+    assert Row('user', 'input2') in rows
 
 
 def test_source_sample_orion():
