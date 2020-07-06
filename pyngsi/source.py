@@ -82,6 +82,11 @@ class Source(Iterable):
         return Source((next(iterator) for _ in range(n)))
 
     @classmethod
+    def from_stream(cls, stream: Iterable = sys.stdin, provider: str = "user", **kwargs):
+        """automatically create the Source from a stream"""
+        return SourceStream(stream, **kwargs)
+
+    @classmethod
     def from_file(cls, filename: str, provider: str = None, **kwargs):
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
         if "*" in cls.registered_extensions:
@@ -107,25 +112,6 @@ class Source(Iterable):
     @classmethod
     def unregister_extension(cls, ext: str):
         del cls.registered_extensions[ext]
-
-    def reset(self):
-        pass
-
-
-class SourceIter(Source):
-
-    """
-    A SourceList is Source built from a Python list.
-
-    """
-
-    def __init__(self, rows: List[str], provider: str = "user"):
-        self.rows = rows
-        self.provider = provider
-
-    def __iter__(self):
-        for record in self.rows:
-            yield Row(self.provider, record)
 
     def reset(self):
         pass
@@ -177,6 +163,25 @@ class SourceSampleOrion(Source):
             yield Row("orionSample", f"Room{i%9+1};{round(random.uniform(-10,50), 1)};{random.randint(700,1000)}")
             i += 1
             time.sleep(self.delay)
+
+    def reset(self):
+        pass
+
+
+class SourceStream(Source):
+
+    """
+    A SourceList is Source built from a Python list.
+
+    """
+
+    def __init__(self, stream: Iterable, provider: str = "user"):
+        self.rows = stream
+        self.provider = provider
+
+    def __iter__(self):
+        for record in self.rows:
+            yield Row(self.provider, record)
 
     def reset(self):
         pass

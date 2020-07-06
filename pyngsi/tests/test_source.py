@@ -5,7 +5,7 @@ import pkg_resources
 
 from typing import List
 
-from pyngsi.source import Row, Source, SourceIter, SourceSingle, SourceStdin, \
+from pyngsi.source import Row, Source, SourceStream, SourceSingle, SourceStdin, \
     SourceSampleOrion, SourceFile, SourceJson
 
 
@@ -38,7 +38,7 @@ def test_method_skip_header():
 
 
 def test_source_list():
-    src = SourceIter(["test1", "test2"])
+    src = SourceStream(["test1", "test2"])
     rows: List[Row] = [x for x in src]
     assert len(rows) == 2
     assert rows[0] == Row('user', 'test1')

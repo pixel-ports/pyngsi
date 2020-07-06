@@ -11,7 +11,7 @@ from cheroot.wsgi import Server as WSGIServer
 from loguru import logger
 from datetime import datetime
 
-from pyngsi.source import Source, SourceIter, SourceJson, SourceSingle
+from pyngsi.source import Source, SourceStream, SourceJson, SourceSingle
 from pyngsi.__init__ import __version__ as version
 
 
@@ -156,7 +156,7 @@ class ServerHttpUpload(Server):
                     data = file.read().decode('utf-8')
                     logger.info(f"{type(data)=}")
                     logger.info(f"{data=}")
-                    src: Source = SourceIter(
+                    src: Source = SourceStream(
                         data.splitlines(), provider=provider)
             else:
                 if request.is_json:
@@ -166,7 +166,7 @@ class ServerHttpUpload(Server):
                 else:
                     logger.info("request is plain text")
                     data = request.get_data().decode("utf-8", errors="replace")
-                    src: Source = SourceIter(data.splitlines())
+                    src: Source = SourceStream(data.splitlines())
         except Exception:
             if self.agent:
                 self.agent.server_status.calls_error += 1
