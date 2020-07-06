@@ -6,7 +6,8 @@ import pkg_resources
 
 from typing import List
 
-from pyngsi.source import Row, Source, SourceStream, SourceSingle, SourceSampleOrion, SourceFile, SourceJson
+from pyngsi.source import Row, Source, SourceStream, SourceSingle, SourceJson
+from pyngsi.more_sources import SourceSampleOrion
 
 
 def test_method_limit():
@@ -75,7 +76,7 @@ def test_source_file(mocker):
     input_data = 'input1\ninput2\n'
     mock_open = mocker.mock_open(read_data=input_data)
     mocker.patch("builtins.open", mock_open)
-    src = SourceFile("test.txt")
+    src = Source.from_file("test.txt")
     rows: List[Row] = [x for x in src]
     assert rows == [Row('test.txt', 'input1'), Row('test.txt', 'input2')]
 
@@ -84,14 +85,14 @@ def test_source_file_gz(mocker):
     input_data = 'input3\ninput4\n'
     mock_open = mocker.mock_open(read_data=input_data)
     mocker.patch("gzip.open", mock_open)
-    src = SourceFile("test.txt.gz")
+    src = Source.from_file("test.txt.gz")
     rows: List[Row] = [x for x in src]
     assert rows == [Row('test.txt.gz', 'input3'), Row('test.txt.gz', 'input4')]
 
 
 def test_source_file_zip():
     zipname = pkg_resources.resource_filename(__name__, "data/test.txt.zip")
-    src = SourceFile(zipname)
+    src = Source.from_file(zipname)
     rows: List[Row] = [x for x in src]
     assert rows == [Row('test.txt.zip', 'input5'),
                     Row('test.txt.zip', 'input6')]

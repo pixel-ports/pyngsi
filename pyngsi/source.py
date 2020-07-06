@@ -13,7 +13,6 @@ import sys
 import gzip
 import json
 import time
-import random
 
 from dataclasses import dataclass
 from collections.abc import Iterable
@@ -28,7 +27,6 @@ from pathlib import Path
 from deprecated import deprecated
 
 from pyngsi.utils import stream_from
-from pyngsi.ftpclient import FtpClient
 
 
 @dataclass(eq=True, frozen=True)
@@ -40,7 +38,7 @@ class Row:
     For example, the provider can be the full qualified named of a remote file located on a FTP Server.
     The record could be a simple string, a CSV-delimited line, a full JSON document.
     """
-    provider: str = "Unknown"
+    provider: str = "user"
     record: Any = None
 
 
@@ -98,10 +96,11 @@ class Source(Iterable):
         if ext in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions[ext]
             return klass(filename, **kwargs)
-        stream, filename = stream_from(filename)
+        stream, suffixes = stream_from(filename)
+        ext = suffixes[-1]
         if ext == ".json":
             return SourceJson(filename, **kwargs)
-        return SourceStream(stream, **kwargs)
+        return SourceStream(stream, provider=basename(filename), **kwargs)
 
         # if "*" in cls.registered_extensions:
         #     klass, kwargs = cls.registered_extensions["*"]
@@ -138,7 +137,7 @@ class SourceSingle(Source):
 
     """
 
-    def __init__(self, row: str, provider: str = "user"):
+    def __init__(self, row: Any, provider: str = "user"):
         self.row = row
         self.provider = provider
 
@@ -146,91 +145,20 @@ class SourceSingle(Source):
         yield Row(self.provider, self.row)
 
 
-class SourceSampleOrion(Source):
-
-    """
-    A SourceSampleOrion implements the Source from the NGSI Walkthrough tutorial.
-
-    Please have a look at :
-    https://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#entity-creationhttps://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#entity-creation
-
-    First two records are those of the tutorial.
-    Following records are randomized.
-    """
-
-    def __init__(self, count: int = 5, delay: float = 1.0):
-        self.count = count if count > 0 else sys.maxsize
-        self.delay = delay
-
-    def __iter__(self):
-        i: int = 0
-        if self.count >= 1:  # 1st element is fixed
-            yield Row("orionSample", "Room1;23;720")
-            i += 1
-            time.sleep(self.delay)
-        if self.count >= 2:  # 2nd element is fixed
-            yield Row("orionSample", "Room2;21;711")
-            i += 1
-            time.sleep(self.delay)
-        # next elements are randomized
-        while i < self.count:
-            yield Row("orionSample", f"Room{i%9+1};{round(random.uniform(-10,50), 1)};{random.randint(700,1000)}")
-            i += 1
-            time.sleep(self.delay)
-
-    def reset(self):
-        pass
-
-
 class SourceStream(Source):
 
-    def __init__(self, stream: Iterable, provider: str = "user"):
+    def __init__(self, stream: Iterable, provider: str = "user", ignore_header: bool = False):
+        if ignore_header:
+            next(stream)
         self.stream = stream
         self.provider = provider
 
     def __iter__(self):
-        for record in self.stream:
-            yield Row(self.provider, record)
-
-    def reset(self):
-        pass
-
-
-class SourceFile(Source):
-    """Read raw data from a text file. File may be gzipped. File may be a single-file ZIP archive."""
-
-    def __init__(self, filename: str, provider: str = None, ignore_header: bool = False):
-        """
-        Parameters
-        ----------
-        filename : str
-            The name of the file containing raw data
-        """
-        self.filename = filename
-        self.provider = provider if provider else basename(filename)
-        self.ignore_header = ignore_header
-
-        try:
-            if self.filename[-3:] == ".gz":
-                self.stream = gzip.open(self.filename, "rt", encoding="utf-8")
-            elif self.filename[-4:] == ".zip":
-                zf = ZipFile(self.filename, 'r')
-                f = zf.namelist()[0]
-                self.stream = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')
-            else:
-                self.stream = open(self.filename, "r", encoding="utf-8")
-        except Exception as e:
-            logger.critical(f"Cannot open file {self.filename} : {e}")
-            sys.exit(1)
-
-    def __iter__(self):
-        if self.ignore_header:
-            next(self.stream)
         for line in self.stream:
             yield Row(self.provider, line.rstrip("\r\n"))
 
     def reset(self):
-        self.__init__(self.filename, self.provider)
+        pass
 
 
 class SourceJson(Source):
@@ -279,90 +207,3 @@ class SourceJson(Source):
 
     def reset(self):
         pass
-
-
-# a file downloaded from FTP : (local_filename, remote_filename)
-FtpFile = Tuple[str, str]
-
-
-class SourceFtp(Source):
-    """
-    A SourceFtp reads data from a given FTP Server.
-
-    All the complexity is hidden for the end user.
-    The SourceFtp can automatically download the desired files from the FTP Server.
-    Selection of the remote files is based on the filenames, and operates inside one or many remote folders.
-    The selection is operated thanks to the f_match() function that could be a regex or whatever you want.
-    Once the files are downloaded (into a temp dir), the connection to the FTP Server is closed.
-    Then the Source reads the downloaded files to deliver rows as usual, by iterating on file records.
-    At the end, when the Source is closed, the temp dir is cleaned.
-    """
-
-    def __init__(self, host: str, user: str = "anonymous",
-                 passwd: str = "guest",
-                 paths: List[str] = ["/pub"],
-                 use_tls: bool = False,
-                 f_match: Callable[[str], bool] = lambda x: False,
-                 provider: str = None,
-                 source_factory=Source.from_file):
-        """
-        Parameters
-        ----------
-        filename : str
-            The name of the file containing raw data
-        """
-
-        self.host = host
-        self.user = user
-        self.passwd = passwd
-        self.use_tls = use_tls
-        self.paths = paths
-        self.f_match = f_match
-        self.provider = provider
-        self.source_factory = source_factory
-
-        # connect to FTP server
-        self.ftp = FtpClient(host, user, passwd, use_tls)
-
-        # retrieve a list of files we're interested in
-        remote_files = self._retrieve_filelist(paths, f_match)
-
-        # download files : a list of (local_filename, remote_filename)
-        self.downloaded_files: List[FtpFile] = self._download_files(
-            remote_files)
-
-        if len(self.downloaded_files) != len(remote_files):
-            logger.critical(f"Some files have not been downloaded.")
-
-        # disconnect from FTP server
-        self.ftp.close()
-
-    def __iter__(self):
-        for ftpfile in self.downloaded_files:
-            localname, remotename = ftpfile
-            logger.info(f"process local {localname}")
-            provider = self.provider if self.provider else f"ftp://{self.host}{remotename}"
-            source = self.source_factory(localname, provider)
-            yield from source
-        self.ftp.clean()
-
-    def _retrieve_filelist(self, paths, f_match=lambda x: True) -> List[str]:
-        remote_files = []
-        for path in paths:
-            filelist = [x for x in self.ftp.retrieve_filelist(
-                path) if f_match(x)]
-            remote_files.extend(filelist)
-        logger.info(f"Found {len(remote_files)} matching files")
-        return remote_files
-
-    def _download_files(self, remote_files: List[str]) -> List[FtpFile]:
-        try:
-            downloaded_files = [(self.ftp.download(remote), remote)
-                                for remote in remote_files]
-        except Exception as e:
-            logger.critical(f"Problem while downloading files : {e}")
-        return downloaded_files
-
-    def reset(self):
-        self.__init__(self.host, self.user, self.passwd,
-                      self.paths, self.f_match, self.provider, self.source_factory)

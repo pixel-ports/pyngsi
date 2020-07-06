@@ -7,7 +7,7 @@ import re
 from loguru import logger
 from os.path import basename, join
 
-from pyngsi.source import SourceFtp
+from pyngsi.source_ftp import SourceFtp
 
 
 @pytest.fixture

@@ -7,23 +7,22 @@ import gzip
 from zipfile import ZipFile
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Iterable, Tuple
+from loguru import logger
 
 
-def stream_from(filename: str) -> Tuple[Iterable, str]:
+def stream_from(filename: str):
     try:
-        ext = Path(filename).suffix
+        suffixes = Path(filename).suffixes
+        ext = suffixes[-1]
         if ext == ".gz":
             stream = gzip.open(filename, "rt", encoding="utf-8")
-            filename = Path(filename).stem
-            return stream, filename
+            return stream, suffixes[:-1]
         elif ext == ".zip":
             zf = ZipFile(filename, 'r')
             f = zf.namelist()[0]
             stream = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')
-            filename = Path(filename).stem
-            return stream, filename
+            return stream, suffixes[:-1]
         else:
-            return open(filename, "r", encoding="utf-8"), filename
+            return open(filename, "r", encoding="utf-8"), suffixes
     except Exception as e:
-        print(f"Cannot open file {filename} : {e}", file=sys.stderr)
+        logger.error(f"Cannot open file {filename} : {e}")
