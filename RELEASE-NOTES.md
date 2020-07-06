@@ -1,7 +1,7 @@
 # pyngsi 1.2.6
 ## June 29, 2020
 
-- Fixed bad handling of array's in the DataModel
+- Fixed [issue#1](https://github.com/pixel-ports/pyngsi-tutorial) : bad handling of array's in the DataModel
 
 # pyngsi 1.2.5
 ## June 26, 2020
@@ -22,7 +22,7 @@
 - Added Apache 2.0 licence
 - Added `docker-compose` file for Orion
 - Added Travis continous integration
-- Removed notebook folder. Now hosted at https://github.com/pixel-ports/pyngsi-tutorial
+- Removed notebook folder. Now hosted at [github](https://github.com/pixel-ports/pyngsi-tutorial)
 - Added code coverage
 - Added badges
 - Source methods `skip_header()` and `limit()` now return a new Source instance
