@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from pyngsi.source import Row
-from pyngsi.more_sources import SourceSampleOrion
+from pyngsi.sources.source import Row
+from pyngsi.sources.more_sources import SourceSampleOrion
 from pyngsi.sink import SinkNull, SinkStdout
 from pyngsi.agent import NgsiAgent, build_entity_unknown, build_entity_sample_orion
 from pyngsi.ngsi import DataModel

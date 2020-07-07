@@ -5,7 +5,7 @@ from typing import Tuple, List, Callable
 from loguru import logger
 from pyngsi.ftpclient import FtpClient
 
-from pyngsi.source import Source
+from pyngsi.sources.source import Source
 
 
 # a file downloaded from FTP : (local_filename, remote_filename)

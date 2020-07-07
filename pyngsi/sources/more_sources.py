@@ -7,7 +7,7 @@ import csv
 
 from pathlib import Path
 
-from pyngsi.source import Source, Row
+from pyngsi.sources.source import Source, Row
 
 
 class SourceSampleOrion(Source):

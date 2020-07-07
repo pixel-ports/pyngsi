@@ -10,10 +10,10 @@ from datetime import datetime
 from typing import Callable, Union
 from abc import ABC, abstractmethod
 
-from pyngsi.source import Row, Source, SourceStream
+from pyngsi.sources.source import Row, Source, SourceStream
 from pyngsi.sink import Sink, SinkStdout
 from pyngsi.ngsi import DataModel
-from pyngsi.server import Server
+from pyngsi.sources.server import Server
 from pyngsi.__init__ import __version__
 
 
@@ -174,7 +174,7 @@ class NgsiAgentServer(NgsiAgent):
     Each time the Source receives a data request, the NgsiAgentServer is triggered to process the request content.
     """
 
-    import pyngsi.server
+    import pyngsi.sources.server
 
     @dataclass
     class ServerStatus:
@@ -189,7 +189,7 @@ class NgsiAgentServer(NgsiAgent):
             self.starttime = datetime.now()
 
     def __init__(self,
-                 server: pyngsi.server.Server = None,
+                 server: pyngsi.sources.server.Server = None,
                  sink: Sink = None,
                  process: Callable = lambda row, *args, **kwargs: row.record,
                  side_effect: Callable[[Row, Sink, DataModel], int] = None):

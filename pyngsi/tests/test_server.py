@@ -4,7 +4,7 @@
 import pytest
 import json
 
-from pyngsi.server import ServerHttpUpload
+from pyngsi.sources.server import ServerHttpUpload
 from pyngsi.__init__ import __version__ as version
 
 

@@ -3,7 +3,7 @@
 
 import pkg_resources
 
-from pyngsi.more_sources import SourceMicrosoftExcel
+from pyngsi.sources.more_sources import SourceMicrosoftExcel
 
 
 def test_source():

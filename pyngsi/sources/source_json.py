@@ -11,7 +11,7 @@ from os.path import basename
 from zipfile import ZipFile
 from io import TextIOWrapper
 
-from pyngsi.source import Row, Source
+from pyngsi.sources.source import Row, Source
 
 
 class SourceJson(Source):

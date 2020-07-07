@@ -11,7 +11,7 @@ from cheroot.wsgi import Server as WSGIServer
 from loguru import logger
 from datetime import datetime
 
-from pyngsi.source import Source, SourceStream, SourceJson, SourceSingle
+from pyngsi.sources.source import Source, SourceStream, SourceJson, SourceSingle
 from pyngsi.__init__ import __version__ as version
 
 

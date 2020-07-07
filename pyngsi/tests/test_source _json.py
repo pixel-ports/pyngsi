@@ -6,7 +6,7 @@ import pkg_resources
 
 from typing import List
 
-from pyngsi.source import Row, SourceJson
+from pyngsi.sources.source_json import Row, SourceJson
 
 
 def test_source_json(mocker):
