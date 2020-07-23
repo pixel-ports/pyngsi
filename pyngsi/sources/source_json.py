@@ -17,35 +17,11 @@ from pyngsi.sources.source import Row, Source
 class SourceJson(Source):
     """Read JSON formatted data from Standard Input"""
 
-    def jsonpath(self, path: List):
-        obj = self.json_obj
-        for p in path:
-            if isinstance(p, int):
-                obj = obj[p]
-            else:
-                obj = obj.get(p)
-        return obj
-
-    def __init__(self, input: str = None, provider: str = None, path: str = None):
+    def __init__(self, input: str = None, provider: str = None, jsonpath: str = None):
+        print(f"{provider=}")
+        self.json_obj = input
         self.provider = provider
-        self.path = path
-        if not isinstance(input, str):
-            self.json_obj = input
-        else:
-            filename = input
-            self.provider = basename(filename) if filename else "stdin"
-            if filename:
-                if filename[-3:] == ".gz":
-                    stream = gzip.open(filename, "rt", encoding="utf-8")
-                elif filename[-4:] == ".zip":
-                    zf = ZipFile(filename, 'r')
-                    f = zf.namelist()[0]
-                    self._cm = TextIOWrapper(zf.open(f, 'r'), encoding='utf-8')
-                else:
-                    stream = open(filename, "r", encoding="utf-8")
-            else:
-                stream = sys.stdin
-            self.json_obj = json.load(stream)
+        self.path = jsonpath
 
     def __iter__(self):
         obj = self.json_obj
@@ -57,6 +33,15 @@ class SourceJson(Source):
                 yield Row(self.provider, j)
         else:
             yield Row(self.provider, obj)
+
+    def jsonpath(self, path: List):
+        obj = self.json_obj
+        for p in path:
+            if isinstance(p, int):
+                obj = obj[p]
+            else:
+                obj = obj.get(p)
+        return obj
 
     def reset(self):
         pass

@@ -87,11 +87,11 @@ class Source(Iterable):
 
     @classmethod
     def from_file(cls, filename: str, provider: str = None, **kwargs):
+        from pyngsi.sources.source_json import SourceJson
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
         if "*" in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions["*"]
             return klass(filename, **kwargs)
-        #ext = Path(filename).suffix
         ext = (''.join(Path(filename).suffixes))[1:]
         if ext in cls.registered_extensions:
             klass, kwargs = cls.registered_extensions[ext]
@@ -99,24 +99,9 @@ class Source(Iterable):
         stream, suffixes = stream_from(filename)
         ext = suffixes[-1]
         if ext == ".json":
-            return SourceJson(filename, **kwargs)
+            json_obj = json.load(stream)
+            return SourceJson(json_obj, provider=basename(filename), **kwargs)
         return SourceStream(stream, provider=basename(filename), **kwargs)
-
-        # if "*" in cls.registered_extensions:
-        #     klass, kwargs = cls.registered_extensions["*"]
-        #     return klass(filename, **kwargs)
-        # ext = (''.join(Path(filename).suffixes))[1:]
-        # if ext in cls.registered_extensions:
-        #     klass, kwargs = cls.registered_extensions[ext]
-        #     return klass(filename, **kwargs)
-        # if ext == "json.gz" or ext == "json":
-        #     return SourceJson(filename, **kwargs)
-        # return SourceFile(filename, **kwargs)
-
-    @classmethod
-    @deprecated(version='1.2.5', reason="This method will be removed soon")
-    def create_source_from_file(cls, filename: str, provider: str = None, **kwargs):
-        return Source.from_file(filename, provider, **kwargs)
 
     @classmethod
     def register_extension(cls, ext: str, src, **kwargs):

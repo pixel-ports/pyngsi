@@ -10,7 +10,7 @@ from pathlib import Path
 from loguru import logger
 
 
-def stream_from(filename: str):
+def stream_from(filename: str = None):
     try:
         suffixes = Path(filename).suffixes
         ext = suffixes[-1]
