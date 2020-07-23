@@ -115,21 +115,6 @@ class Source(Iterable):
         pass
 
 
-class SourceSingle(Source):
-
-    """
-    A SourceSingle is Source built from a Python string.
-
-    """
-
-    def __init__(self, row: Any, provider: str = "user"):
-        self.row = row
-        self.provider = provider
-
-    def __iter__(self):
-        yield Row(self.provider, self.row)
-
-
 class SourceStream(Source):
 
     def __init__(self, stream: Iterable, provider: str = "user", ignore_header: bool = False):
@@ -144,3 +129,18 @@ class SourceStream(Source):
 
     def reset(self):
         pass
+
+
+class SourceSingle(Source):
+
+    """
+    A SourceSingle is Source built from a Python string.
+
+    """
+
+    def __init__(self, row: Any, provider: str = "user"):
+        self.row = row
+        self.provider = provider
+
+    def __iter__(self):
+        yield Row(self.provider, self.row)
