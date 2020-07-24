@@ -6,7 +6,7 @@
 # Use CTRL-D to send EOF
 
 from pyngsi.agent import NgsiAgent
-from pyngsi.source import Row
+from pyngsi.sources.source import Row
 
 
 def basic_processing(data: Row):

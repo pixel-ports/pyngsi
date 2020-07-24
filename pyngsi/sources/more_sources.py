@@ -6,6 +6,7 @@ import csv
 
 
 from pathlib import Path
+from loguru import logger
 
 from pyngsi.sources.source import Source, Row
 
@@ -48,7 +49,8 @@ class SourceSampleOrion(Source):
 
 class SourceMicrosoftExcel(Source):
 
-    def __init__(self, filename: str, sheetid: int = 0, sheetname: str = None, ignore: int = 0):
+    def __init__(self, filename, sheetid: int = 0, sheetname: str = None, ignore: int = 0):
+        logger.debug(f"{filename=}")
         wb = openpyxl.load_workbook(filename)
         ws = wb[sheetname] if sheetname else wb.worksheets[sheetid]
         self.rows = ws.rows
@@ -58,6 +60,7 @@ class SourceMicrosoftExcel(Source):
 
     def __iter__(self):
         for row in self.rows:
-            record = ",".join(
+            record = ";".join(
                 [str(cell.value) if cell.value else "" for cell in row])
+            logger.debug(f"{self.provider=}{record=}")
             yield Row(self.provider, record)

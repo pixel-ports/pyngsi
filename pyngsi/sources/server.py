@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import json
 import socket
 import signal
@@ -10,6 +11,8 @@ from flask import Flask, request, jsonify
 from cheroot.wsgi import Server as WSGIServer
 from loguru import logger
 from datetime import datetime
+from pathlib import Path
+from werkzeug.utils import secure_filename
 
 from pyngsi.sources.source import Source, SourceStream, SourceSingle
 from pyngsi.sources.source_json import SourceJson
@@ -47,6 +50,7 @@ class Server():
         pass
 
     def _process_content(self, src: Source):
+        logger.info(f"{src=}")
         from pyngsi.agent import NgsiAgentPull
         if not src:
             logger.info("no source")
@@ -57,7 +61,8 @@ class Server():
         try:
             if self.ignore_header:
                 src = src.skip_header()
-            agent = NgsiAgentPull(src, self.agent.sink, self.agent.process, self.agent.side_effect)
+            agent = NgsiAgentPull(src, self.agent.sink,
+                                  self.agent.process, self.agent.side_effect)
             logger.info(f"{self.ignore_header=}")
             logger.info(f"{self.jsonpath=}")
             agent.run()
@@ -93,6 +98,7 @@ class ServerHttpUpload(Server):
         self.wsgi_port = wsgi_port
         self.endpoint = endpoint
         self.debug = debug
+        self.filename = None
 
         self.app = Flask(__name__)
         self.app.add_url_rule("/version", 'version',
@@ -132,7 +138,6 @@ class ServerHttpUpload(Server):
             return jsonify(server_status=self.agent.server_status,
                            ngsi_stats=self.agent.stats)
 
-
     def _upload(self):
         if self.agent:
             self.agent.server_status.lastcalltime = datetime.now()
@@ -142,29 +147,43 @@ class ServerHttpUpload(Server):
 
         src: Source = None
         try:
-            if 'file' in request.files:
+            if 'file' in request.files:  # multipart/form-data
                 file = request.files['file']
                 filename = file.filename
                 if filename == "":
                     return jsonify({'status': 400, 'message': 'no file'})
-                ext = filename.rsplit('.', 1)[1].lower()
-                if ext not in ("txt", "csv", "json"):
-                    return jsonify({'status': 400, 'message': f"unknown extension {ext}"})
                 provider = self.provider if self.provider else filename
-                if ext == 'json':
+                ext = (''.join(Path(filename).suffixes))[1:]
+                logger.debug(f"{ext=}")
+                if ext in Source.registered_extensions:                    
+                    klass, kwargs = Source.registered_extensions[ext]
+                    logger.debug(f"{klass=}")
+                    self.filename = secure_filename(filename)
+                    logger.debug(self.filename)
+                    file.save(self.filename)                    
+                    src = klass(self.filename, **kwargs)
+                    logger.debug(f"{src=}")
+                    # for m in src:
+                    #     logger.debug(m)
+                #ext = filename.rsplit('.', 1)[1].lower()
+                elif ext not in ("txt", "csv", "json"):
+                    return jsonify({'status': 400, 'message': f"unknown extension {ext}"})
+                elif ext == 'json':
                     data = json.load(file)
-                    src: Source = SourceJson(data, provider=provider, path=self.jsonpath)
+                    src: Source = SourceJson(
+                        data, provider=provider, jsonpath=self.jsonpath)
                 else:
                     data = file.read().decode('utf-8')
                     logger.info(f"{type(data)=}")
                     logger.info(f"{data=}")
                     src: Source = SourceStream(
                         data.splitlines(), provider=provider)
-            else:
+            else:  # raw binary
                 if request.is_json:
                     logger.info("request is json")
                     data = request.get_json()
-                    src: Source = SourceJson(data, provider=self.provider, path=self.jsonpath)
+                    src: Source = SourceJson(
+                        data, provider=self.provider, jsonpath=self.jsonpath)
                 else:
                     logger.info("request is plain text")
                     data = request.get_data().decode("utf-8", errors="replace")
@@ -174,7 +193,10 @@ class ServerHttpUpload(Server):
                 self.agent.server_status.calls_error += 1
             return jsonify({'status': 400, 'message': "cannot parse content"})
 
+        logger.info(src)
         self._process_content(src)
+        if self.filename:
+            os.remove(self.filename)
 
         if self.agent:
             self.agent.server_status.calls_success += 1

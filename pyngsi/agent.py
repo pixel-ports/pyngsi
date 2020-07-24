@@ -131,6 +131,7 @@ class NgsiAgentPull(NgsiAgent):
     def run(self):
         logger.info("start to acquire data")
         for row in self.source:
+            logger.debug(row)
             try:
                 logger.trace(f"{row.provider=}\t{row.record=}")
                 self.stats.input += 1
@@ -161,7 +162,7 @@ class NgsiAgentPull(NgsiAgent):
 
     def reset(self):
         self.source.reset()
-        self.stats.zero()     
+        self.stats.zero()
 
 
 class NgsiAgentServer(NgsiAgent):

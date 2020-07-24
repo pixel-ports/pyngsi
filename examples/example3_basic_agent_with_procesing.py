@@ -5,7 +5,8 @@
 # https://fiware-orion.readthedocs.io/en/2.0.0/user/walkthrough_apiv2/index.html#entity-creation
 
 from pyngsi.agent import NgsiAgent
-from pyngsi.source import Row, SourceSampleOrion
+from pyngsi.sources.source import Row
+from pyngsi.sources.more_sources import SourceSampleOrion
 from pyngsi.sink import SinkStdout
 from pyngsi.ngsi import DataModel
 

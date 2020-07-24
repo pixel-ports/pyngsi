@@ -5,8 +5,9 @@
 # https://fiware-orion.readthedocs.io/en/2.0.0/user/walkthrough_apiv2/index.html#entity-creation
 
 from pyngsi.agent import NgsiAgent
-from pyngsi.source import Row
-from pyngsi.server import ServerHttpUpload
+from pyngsi.sources.source import Row, Source
+from pyngsi.sources.server import ServerHttpUpload
+from pyngsi.sources.more_sources import SourceMicrosoftExcel
 from pyngsi.sink import SinkStdout
 from pyngsi.ngsi import DataModel
 
@@ -20,6 +21,8 @@ def build_entity(row: Row) -> DataModel:
 
 
 def main():
+
+    Source.register_extension('xlsx', SourceMicrosoftExcel, ignore=1)
 
     # You declare an HTTP server that acts as your Source, listening on port 8080
     src = ServerHttpUpload()

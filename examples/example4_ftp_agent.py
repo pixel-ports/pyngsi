@@ -10,7 +10,8 @@
 from datetime import datetime
 
 from pyngsi.agent import NgsiAgent
-from pyngsi.source import Row, SourceFtp
+from pyngsi.sources.source import Row
+from pyngsi.sources.source_ftp import SourceFtp
 from pyngsi.sink import SinkStdout
 from pyngsi.ngsi import DataModel
 

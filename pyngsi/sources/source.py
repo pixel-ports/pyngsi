@@ -111,6 +111,10 @@ class Source(Iterable):
     def unregister_extension(cls, ext: str):
         del cls.registered_extensions[ext]
 
+    @classmethod
+    def is_registered_extension(cls, ext: str):
+        return ext in cls.registered_extensions
+
     def reset(self):
         pass
 
