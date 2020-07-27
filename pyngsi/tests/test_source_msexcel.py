@@ -12,10 +12,10 @@ def test_source():
     rows = [row for row in src]
     assert len(rows) == 4
     assert rows[0].provider == "test.xlsx"
-    assert rows[0].record == "SH1HDR1,,,"
-    assert rows[1].record == "SH1HDR2,,,"
-    assert rows[2].record == "data1,11,12,13"
-    assert rows[3].record == "data2,14,15,16"
+    assert rows[0].record == "SH1HDR1;;;"
+    assert rows[1].record == "SH1HDR2;;;"
+    assert rows[2].record == "data1;11;12;13"
+    assert rows[3].record == "data2;14;15;16"
 
 
 def test_source_with_ignore_header():
@@ -24,9 +24,9 @@ def test_source_with_ignore_header():
     rows = [row for row in src]
     assert len(rows) == 3
     assert rows[0].provider == "test.xlsx"
-    assert rows[0].record == "SH1HDR2,,,"
-    assert rows[1].record == "data1,11,12,13"
-    assert rows[2].record == "data2,14,15,16"
+    assert rows[0].record == "SH1HDR2;;;"
+    assert rows[1].record == "data1;11;12;13"
+    assert rows[2].record == "data2;14;15;16"
 
 
 def test_source_with_sheetname():
@@ -35,10 +35,10 @@ def test_source_with_sheetname():
     rows = [row for row in src]
     assert len(rows) == 4
     assert rows[0].provider == "test.xlsx"
-    assert rows[0].record == "SH2HDR1,,,"
-    assert rows[1].record == "SH2HDR2,,,"
-    assert rows[2].record == "data1,21,22,23"
-    assert rows[3].record == "data2,24,25,26"
+    assert rows[0].record == "SH2HDR1;;;"
+    assert rows[1].record == "SH2HDR2;;;"
+    assert rows[2].record == "data1;21;22;23"
+    assert rows[3].record == "data2;24;25;26"
 
 
 def test_source_with_sheetid():
@@ -47,7 +47,7 @@ def test_source_with_sheetid():
     rows = [row for row in src]
     assert len(rows) == 4
     assert rows[0].provider == "test.xlsx"
-    assert rows[0].record == "SH2HDR1,,,"
-    assert rows[1].record == "SH2HDR2,,,"
-    assert rows[2].record == "data1,21,22,23"
-    assert rows[3].record == "data2,24,25,26"
+    assert rows[0].record == "SH2HDR1;;;"
+    assert rows[1].record == "SH2HDR2;;;"
+    assert rows[2].record == "data1;21;22;23"
+    assert rows[3].record == "data2;24;25;26"
