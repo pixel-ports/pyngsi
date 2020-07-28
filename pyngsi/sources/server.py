@@ -99,7 +99,6 @@ class ServerHttpUpload(Server):
         self.wsgi_port = wsgi_port
         self.endpoint = endpoint
         self.debug = debug
-        self.filename = None
 
         self.app = Flask(__name__)
         self.app.add_url_rule("/version", 'version',
@@ -141,6 +140,7 @@ class ServerHttpUpload(Server):
                            ngsi_stats=self.agent.stats)
 
     def _upload(self):
+        
         if self.agent:
             self.agent.server_status.lastcalltime = datetime.now()
             self.agent.server_status.calls += 1
@@ -149,7 +149,7 @@ class ServerHttpUpload(Server):
 
         try:
 
-            src = self._create_source(request)
+            src, filename = self._create_source(request)
 
         except Exception as e:
             if self.agent:
@@ -158,16 +158,19 @@ class ServerHttpUpload(Server):
 
         logger.info(src)
         self._process_content(src)
-        if self.filename:
-            os.remove(self.filename)
-            self.filename = None
+        if filename:
+            try:
+                os.remove(filename)
+            except Exception as e:
+                logger.warning(f"Cannot remove file {filename}: {e}")
 
         if self.agent:
             self.agent.server_status.calls_success += 1
         return jsonify({'status': 200, 'message': 'content uploaded successfully'})
 
-    def _create_source(self, request: request) -> Source:
+    def _create_source(self, request: request):
         src: Source = None
+        filename: str = None
         
         if 'file' in request.files:  # multipart/form-data
             file = request.files['file']
@@ -179,9 +182,9 @@ class ServerHttpUpload(Server):
             logger.debug(f"{ext=}")
             if ext in Source.registered_extensions:  # extension registred by user
                 klass, kwargs = Source.registered_extensions[ext]
-                self.filename = secure_filename(filename)
-                file.save(self.filename)
-                src = klass(self.filename, **kwargs)
+                filename = secure_filename(filename)
+                file.save(filename)
+                src = klass(filename, **kwargs)
             elif ext not in ("txt", "csv", "json"):
                 raise ServerException(f"unknown extension {ext}")
             elif ext == 'json':  # JSON extension
@@ -202,7 +205,7 @@ class ServerHttpUpload(Server):
                 data = request.get_data().decode("utf-8", errors="replace")
                 src = SourceStream(data.splitlines())
 
-        return src
+        return src, filename
 
 
 class ServerUdp(Server):
