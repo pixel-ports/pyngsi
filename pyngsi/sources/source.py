@@ -109,7 +109,8 @@ class Source(Iterable):
 
     @classmethod
     def unregister_extension(cls, ext: str):
-        del cls.registered_extensions[ext]
+        if cls.is_registered_extension(ext):
+            del cls.registered_extensions[ext]
 
     @classmethod
     def is_registered_extension(cls, ext: str):

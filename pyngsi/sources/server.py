@@ -112,7 +112,8 @@ class ServerHttpUpload(Server):
     def run(self):
         logger.info(
             f"HTTP server listens on http://{self.host}:{self.port}{self.endpoint}")
-        self.agent.server_status.starttime = datetime.now()
+        if self.agent:
+            self.agent.server_status.starttime = datetime.now()
 
         if self.debug:
             self.app.run(host=self.host, port=self.port, debug=self.debug)
@@ -159,6 +160,7 @@ class ServerHttpUpload(Server):
         self._process_content(src)
         if self.filename:
             os.remove(self.filename)
+            self.filename = None
 
         if self.agent:
             self.agent.server_status.calls_success += 1
