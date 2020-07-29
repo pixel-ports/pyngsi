@@ -136,6 +136,12 @@ class SourceStream(Source):
         pass
 
 
+class SourceStdin(SourceStream):
+
+    def __init__(self, **kwargs):
+        super().__init__(stream=sys.stdin, **kwargs)
+
+
 class SourceSingle(Source):
 
     """

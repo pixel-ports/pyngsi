@@ -6,7 +6,7 @@ import pkg_resources
 
 from typing import List
 
-from pyngsi.sources.source import Row, Source, SourceStream, SourceSingle
+from pyngsi.sources.source import Row, Source, SourceStream, SourceStdin, SourceSingle
 from pyngsi.sources.more_sources import SourceSampleOrion
 
 
@@ -55,7 +55,7 @@ def test_source_single():
 
 def test_source_stdin(mocker):
     mocker.patch('sys.stdin', {"input1", "input2"})
-    src = SourceStream(stream=sys.stdin)
+    src = SourceStdin()
     rows: List[Row] = [x for x in src]
     assert len(rows) == 2
     # pytest capture input/output could mess the order
