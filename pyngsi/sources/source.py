@@ -13,6 +13,7 @@ import sys
 import gzip
 import json
 import time
+import glob
 
 from dataclasses import dataclass
 from collections.abc import Iterable
@@ -20,7 +21,7 @@ from loguru import logger
 from os.path import basename
 from typing import List, Callable, Tuple, Any, Sequence
 from more_itertools import take
-from itertools import islice
+from itertools import islice, chain
 from zipfile import ZipFile
 from io import TextIOWrapper
 from pathlib import Path
@@ -104,6 +105,22 @@ class Source(Iterable):
         return SourceStream(stream, provider=basename(filename), **kwargs)
 
     @classmethod
+    def from_files(cls, filenames: Sequence[str], provider: str = None, **kwargs):
+        sources = [Source.from_file(f) for f in filenames]
+        return SourceMany(sources)
+
+    @classmethod
+    def from_glob(cls, pattern: str, provider: str = None, **kwargs):
+        sources = [Source.from_file(f) for f in glob.glob(pattern)]
+        return SourceMany(sources)   
+
+    @classmethod
+    def from_globs(cls, patterns: Sequence[str], provider: str = None, **kwargs):
+        filenames = chain.from_iterable([glob.glob(p) for p in patterns])
+        sources = [Source.from_file(f) for f in filenames]
+        return SourceMany(sources)        
+
+    @classmethod
     def register_extension(cls, ext: str, src, **kwargs):
         cls.registered_extensions[ext] = (src, kwargs)
 
@@ -115,6 +132,14 @@ class Source(Iterable):
     @classmethod
     def is_registered_extension(cls, ext: str):
         return ext in cls.registered_extensions
+
+    @classmethod
+    def register(cls, src, **kwargs):
+        cls.register_extension("*", src, **kwargs)
+
+    @classmethod
+    def unregister(cls):
+        cls.unregister_extension("*")
 
     def reset(self):
         pass
@@ -155,3 +180,14 @@ class SourceSingle(Source):
 
     def __iter__(self):
         yield Row(self.provider, self.row)
+
+
+class SourceMany(Source):
+
+    def __init__(self, sources: Sequence[Source], provider: str = "user"):
+        self.sources = sources
+        self.provider = provider
+
+    def __iter__(self):
+        for src in self.sources:
+            yield from src
