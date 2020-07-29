@@ -1,3 +1,15 @@
+# pyngsi 2.0.0
+## July 30, 2020
+
+- Added `add_date()` and `add_url()` to build NGSI models
+- Added facilities to create Sources from local filesystem : `from_files()`, `from_glob()`, `from_globs()`
+- Extended Source Registration :
+  - works with local files, HTTP server, FTP server
+  - register your custom Source globally or associated with a file extension
+- Added package `sources`
+- Added unit tests
+- Refactored
+
 # pyngsi 1.2.6
 ## June 29, 2020
 

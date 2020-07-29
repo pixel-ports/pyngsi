@@ -52,11 +52,32 @@ def test_add_field_bool():
     ) == r'{"id": "id", "type": "type", "loading": {"value": true, "type": "Boolean"}}'
 
 
-def test_add_field_date_from_str():
+def test_add_field_date_from_str_old_way():
     m = DataModel("id", "type")
     m.add("dateObserved", "2018-01-01T15:00:00", isdate=True)
     assert m.json(
     ) == r'{"id": "id", "type": "type", "dateObserved": {"value": "2018-01-01T15:00:00", "type": "DateTime"}}'
+
+
+def test_add_field_date_from_str():
+    m = DataModel("id", "type")
+    m.add_date("dateObserved", "2018-01-01T15:00:00")
+    assert m.json(
+    ) == r'{"id": "id", "type": "type", "dateObserved": {"value": "2018-01-01T15:00:00", "type": "DateTime"}}'
+
+
+def test_add_field_url_from_str_old_way():
+    m = DataModel("id", "type")
+    m.add("dataProvider", "https://www.fiware.org", isurl=True)
+    assert m.json(
+    ) == r'{"id": "id", "type": "type", "dataProvider": {"value": "https://www.fiware.org", "type": "URL"}}'
+
+
+def test_add_field_url_from_str():
+    m = DataModel("id", "type")
+    m.add_url("dataProvider", "https://www.fiware.org")
+    assert m.json(
+    ) == r'{"id": "id", "type": "type", "dataProvider": {"value": "https://www.fiware.org", "type": "URL"}}'
 
 
 def test_add_field_date_from_datetime():

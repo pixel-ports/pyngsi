@@ -40,7 +40,6 @@ class DataModel(dict):
                 t = "STRING_URL_ENCODED"
             else:
                 t = "Text"
-            # t = "DateTime" if isdate else "STRING_URL_ENCODED" if urlencode else "Text"
             v = escape(value) if urlencode else value
         elif isinstance(value, bool):
             t, v = "Boolean", value
@@ -64,10 +63,15 @@ class DataModel(dict):
         else:
             raise NgsiException(
                 f"Cannot map {type(value)} to NGSI type. {name=} {value=}")
-        #self[name] = v if t == "Array" else {"value": v, "type": t}
         self[name] = {"value": v, "type": t}
         if metadata:
             self[name]["metadata"] = metadata
+
+    def add_date(self, *args, **kwargs):
+        self.add(isdate=True, *args, **kwargs)
+
+    def add_url(self, *args, **kwargs):
+        self.add(isurl=True, *args, **kwargs)
 
     def add_relationship(self, rel_name: str, ref_type: str, ref_id: str):
         if not rel_name.startswith("ref"):

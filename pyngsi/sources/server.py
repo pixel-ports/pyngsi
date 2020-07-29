@@ -188,10 +188,12 @@ class ServerHttpUpload(Server):
             elif ext not in ("txt", "csv", "json"):
                 raise ServerException(f"unknown extension {ext}")
             elif ext == 'json':  # JSON extension
+                filename = None # here we don't save the file
                 data = json.load(file)
                 src = SourceJson(data, provider=provider,
                                  jsonpath=self.jsonpath)
             else:  # processed as text
+                filename = None # here we don't save the file
                 data = file.read().decode('utf-8')
                 src = SourceStream(data.splitlines(), provider=provider)
         else:  # raw binary

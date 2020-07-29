@@ -35,6 +35,109 @@ package index](https://pypi.org/project/pyngsi).
 pip install pyngsi
 ```
 
+## Getting started
+
+### Build your first NGSI entity
+
+```python
+from pyngsi.ngsi import DataModel
+
+m = DataModel(id="Room1", type="Room")
+m.add_url("dataProvider", "https://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#entity-creation")
+m.add("pressure", 720)
+m.add("temperature", 23.0)
+
+m.pprint()
+```
+
+The resulting JSON looks like this :
+
+```json
+{
+  "id": "Room1",
+  "type": "Room",
+  "dataProvider": {
+    "value": "https://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#entity-creation",
+    "type": "URL"
+  },
+  "pressure": {
+    "value": 720,
+    "type": "Integer"
+  },
+  "temperature": {
+    "value": 23.0,
+    "type": "Float"
+  }
+}
+```
+
+### Send the NGSI entity to the Orion broker
+
+```python
+from pyngsi.sink import SinkOrion
+
+sink = SinkOrion()
+sink.write(m)
+```
+
+### Develop your own NGSI Agent
+
+Let's quickly create a CSV file to store values from our room sensors
+```bash
+echo -e "Room1;23;720\nRoom2;21;711" > room.csv
+```
+
+Let's code a function that converts incoming rows to NGSI entities
+
+```python
+def build_entity(row: Row) -> DataModel:
+    id, temperature, pressure = row.record.split(';')
+    m = DataModel(id=id, type="Room")
+    m.add_url("dataProvider", row.provider)
+    m.add("temperature", float(temperature))
+    m.add("pressure", int(pressure))
+    return m
+```
+
+Let's use it in in our new NGSI Agent
+
+```python
+from pyngsi.sources.source import Source, Row
+from pyngsi.sink import SinkOrion
+from pyngsi.agent import NgsiAgent
+
+src = Source.from_file("room.csv")
+sink = SinkOrion()
+agent = NgsiAgent.create_agent(src, sink, process=build_entity)
+agent.run()
+```
+
+This basic example shows how the pyngsi framework is used to build a NGSI Agent.<br>
+Here data are stored on the local filesystem.<br>
+By changing just one line you could retrieve incoming data from a FTP server or an HTTP REST API.
+
+```python
+from pyngsi.sources.source import Source, Row
+from pyngsi.sources.server import ServerHttpUpload
+from pyngsi.sink import SinkOrion
+from pyngsi.agent import NgsiAgent
+
+src = ServerHttpUpload() # line updated !
+sink = SinkOrion()
+agent = NgsiAgent.create_agent(src, sink, process=build_entity)
+agent.run()
+```
+
+Send the file :
+```bash
+curl -F file=@room.csv http://127.0.0.1:8880/upload
+```
+
+JSON and text formats are natively supported.<br>
+Many sources and sinks are provided, i.e. *SinkStdout* to just displays entities, eliminating the need of having an Orion server running.<br>
+One could create a custom Source to handle custom data. The *MicrosoftExcelSource* is given as exemple.<br>
+One could extend the framework according to his needs.
+
 ## Dependencies
 - [loguru](https://github.com/Delgan/loguru)
 - [requests](https://2.python-requests.org)
@@ -45,7 +148,6 @@ pip install pyngsi
 - [cherrypy](https://cherrypy.org)
 - [schedule](https://github.com/dbader/schedule)
 - [openpyxl](https://openpyxl.readthedocs.io)
-- [Deprecated](https://github.com/tantale/deprecated)
 
 ## License
 
