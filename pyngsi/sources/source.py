@@ -25,7 +25,6 @@ from itertools import islice, chain
 from zipfile import ZipFile
 from io import TextIOWrapper
 from pathlib import Path
-from deprecated import deprecated
 
 from pyngsi.utils import stream_from
 
