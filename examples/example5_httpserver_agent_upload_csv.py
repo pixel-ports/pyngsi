@@ -7,7 +7,6 @@
 from pyngsi.agent import NgsiAgent
 from pyngsi.sources.source import Row, Source
 from pyngsi.sources.server import ServerHttpUpload
-from pyngsi.sources.more_sources import SourceMicrosoftExcel
 from pyngsi.sink import SinkStdout
 from pyngsi.ngsi import DataModel
 
@@ -21,8 +20,6 @@ def build_entity(row: Row) -> DataModel:
 
 
 def main():
-
-    Source.register_extension('xlsx', SourceMicrosoftExcel, ignore=1)
 
     # You declare an HTTP server that acts as your Source, listening on port 8080
     src = ServerHttpUpload()

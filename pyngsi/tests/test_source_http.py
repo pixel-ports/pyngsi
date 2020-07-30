@@ -24,11 +24,11 @@ def init_agent():
     sink = SinkNull()
     agent = NgsiAgent.create_agent(src, sink)
     _thread.start_new_thread(agent.run, ())
-    time.sleep(1)  # let time for the server to setup
+    time.sleep(5)  # let time for the server to setup
     yield
     assert agent.server_status.calls == 3
     agent.close()
-    time.sleep(1)  # let time for the server to shutdown
+    time.sleep(5)  # let time for the server to shutdown
 
 
 def test_agent_upload_multipart(init_agent):

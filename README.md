@@ -77,7 +77,7 @@ The resulting JSON looks like this :
 from pyngsi.sink import SinkOrion
 
 sink = SinkOrion()
-sink.write(m)
+sink.write(m.json())
 ```
 
 ### Develop your own NGSI Agent
@@ -114,7 +114,7 @@ agent.run()
 
 This basic example shows how the pyngsi framework is used to build a NGSI Agent.<br>
 Here data are stored on the local filesystem.<br>
-By changing just one line you could retrieve incoming data from a FTP server or an HTTP REST API.
+By changing just one line you could retrieve incoming data from a FTP server or HTTP server.
 
 ```python
 from pyngsi.sources.source import Source, Row
@@ -128,7 +128,7 @@ agent = NgsiAgent.create_agent(src, sink, process=build_entity)
 agent.run()
 ```
 
-Send the file :
+The HTTP server is running. Now you can send the file to the endpoint.
 ```bash
 curl -F file=@room.csv http://127.0.0.1:8880/upload
 ```
