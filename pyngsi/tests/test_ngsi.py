@@ -156,3 +156,22 @@ def test_add_relationship_bad_ref():
     m = DataModel("id", "type")
     with pytest.raises(NgsiException, match=r".*Bad relationship.*"):
         m.add_relationship("store", "Shelf", "001")
+
+
+def test_add_dict():
+    m = DataModel("id", "type")
+    m.add("property", {"a": 1, "b": 2})
+    assert m.json() == r'{"id": "id", "type": "type", ' \
+        r'"property": {"value": {"a": 1, "b": 2}, "type": "Property"}}'
+
+
+def test_add_address():
+    m = DataModel("id", "type")
+    addr = {"addressLocality": "London",
+            "postalCode": "EC4N 8AF",
+            "streetAddress": "25 Walbrook"}
+    m.add_address(addr)
+    assert m.json() == r'{"id": "id", "type": "type", ' \
+        r'"address": {"value": {"addressLocality": "London", ' \
+        r'"postalCode": "EC4N 8AF", "streetAddress": "25 Walbrook"}, ' \
+        r'"type": "PostalAddress"}}'

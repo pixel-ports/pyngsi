@@ -17,8 +17,7 @@ from pyngsi.sources.source import Row, Source
 class SourceJson(Source):
     """Read JSON formatted data from Standard Input"""
 
-    def __init__(self, input: str = None, provider: str = None, jsonpath: str = None):
-        print(f"{provider=}")
+    def __init__(self, input: str, provider: str = "user", jsonpath: str = None):
         self.json_obj = input
         self.provider = provider
         self.path = jsonpath

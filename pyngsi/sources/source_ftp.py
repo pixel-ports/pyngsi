@@ -30,7 +30,7 @@ class SourceFtp(Source):
                  paths: List[str] = ["/pub"],
                  use_tls: bool = False,
                  f_match: Callable[[str], bool] = lambda x: False,
-                 provider: str = None,
+                 provider: str = "user",
                  source_factory=Source.from_file):
         """
         Parameters

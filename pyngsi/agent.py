@@ -133,6 +133,8 @@ class NgsiAgentPull(NgsiAgent):
         for row in self.source:
             logger.debug(row)
             try:
+                if row.provider is None:
+                    row.provider = "user"
                 logger.trace(f"{row.provider=}\t{row.record=}")
                 self.stats.input += 1
                 x = self.process(row)
@@ -149,7 +151,6 @@ class NgsiAgentPull(NgsiAgent):
             except Exception as e:
                 self.stats.error += 1
                 logger.error(f"Cannot process record : {e}")
-                # raise NgsiException(f"Cannot process record : {e}")
         return self
 
     def close(self):

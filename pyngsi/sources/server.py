@@ -35,7 +35,7 @@ class Server():
     Stats are available at the end when calling the close() method, or at any time, when calling the endpoint status if available.
     """
 
-    def __init__(self, provider=None, ignore_header=False, jsonpath=None):
+    def __init__(self, provider="user", ignore_header=False, jsonpath=None):
         self.agent = None
         self.provider = provider
         self.ignore_header = ignore_header

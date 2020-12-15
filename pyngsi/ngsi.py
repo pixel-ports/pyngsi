@@ -60,6 +60,8 @@ class DataModel(dict):
             t, v = "geo:json", location
         elif isinstance(value, Sequence):
             t, v = "Array", value
+        elif isinstance(value, dict):
+            t, v = "Property", value
         else:
             raise NgsiException(
                 f"Cannot map {type(value)} to NGSI type. {name=} {value=}")
@@ -79,6 +81,10 @@ class DataModel(dict):
                 f"Bad relationship name : {rel_name}. Relationship attributes must use prefix 'ref'")
         t, v = "Relationship", f"urn:ngsi-ld:{ref_type}:{ref_id}"
         self[rel_name] = {"value": v, "type": t}
+
+    def add_address(self, value: dict):
+        t, v = "PostalAddress", value
+        self["address"] = {"value": v, "type": t}
 
     def json(self):
         """Returns the datamodel in json format"""

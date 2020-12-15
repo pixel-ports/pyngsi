@@ -29,7 +29,7 @@ from pathlib import Path
 from pyngsi.utils import stream_from
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass(eq=True)
 class Row:
     """
     A row is a data record delivered from a Source.
@@ -86,7 +86,7 @@ class Source(Iterable):
         return SourceStream(stream, **kwargs)
 
     @classmethod
-    def from_file(cls, filename: str, provider: str = None, **kwargs):
+    def from_file(cls, filename: str, provider: str = "user", **kwargs):
         from pyngsi.sources.source_json import SourceJson
         """automatically create the Source from a filename, figuring out the extension, handles text, json and gzip compression"""
         if "*" in cls.registered_extensions:
@@ -104,17 +104,17 @@ class Source(Iterable):
         return SourceStream(stream, provider=basename(filename), **kwargs)
 
     @classmethod
-    def from_files(cls, filenames: Sequence[str], provider: str = None, **kwargs):
+    def from_files(cls, filenames: Sequence[str], provider: str = "user", **kwargs):
         sources = [Source.from_file(f) for f in filenames]
         return SourceMany(sources)
 
     @classmethod
-    def from_glob(cls, pattern: str, provider: str = None, **kwargs):
+    def from_glob(cls, pattern: str, provider: str = "user", **kwargs):
         sources = [Source.from_file(f) for f in glob.glob(pattern)]
         return SourceMany(sources)   
 
     @classmethod
-    def from_globs(cls, patterns: Sequence[str], provider: str = None, **kwargs):
+    def from_globs(cls, patterns: Sequence[str], provider: str = "user", **kwargs):
         filenames = chain.from_iterable([glob.glob(p) for p in patterns])
         sources = [Source.from_file(f) for f in filenames]
         return SourceMany(sources)        
