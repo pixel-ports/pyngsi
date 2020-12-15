@@ -70,6 +70,7 @@ class Server():
             agent.close()
             if self.agent:
                 self.agent.stats += agent.stats
+            return agent.stats
         except Exception as e:
             logger.error(f"cannot parse content : {e}")
             raise ServerException("cannot parse content")
@@ -157,7 +158,7 @@ class ServerHttpUpload(Server):
             return jsonify({'status': 400, 'message': e})
 
         logger.info(src)
-        self._process_content(src)
+        stats = self._process_content(src)
         if filename:
             try:
                 os.remove(filename)
@@ -166,7 +167,8 @@ class ServerHttpUpload(Server):
 
         if self.agent:
             self.agent.server_status.calls_success += 1
-        return jsonify({'status': 200, 'message': 'content uploaded successfully'})
+        #return jsonify({'status': 200, 'message': 'content uploaded successfully'})
+        return jsonify(status=200, message="content uploaded successfully", statistics=stats)
 
     def _create_source(self, request: request):
         src: Source = None

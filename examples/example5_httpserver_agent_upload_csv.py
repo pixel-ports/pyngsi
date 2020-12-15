@@ -32,9 +32,9 @@ def main():
 
     # You must push data to the source, here we send POST requests to the server
     # For example, in a bash shell, send binary content
-    # curl --noproxy '*' -v  -H "Content-Type: text/plain" -d $'Room1;23.0;720\nRoom2;21.0;711' "127.0.0.1:8080/upload"
+    # curl --noproxy '*' -v  -H "Content-Type: text/plain" -d $'Room1;23.0;720\nRoom2;21.0;711' "127.0.0.1:8880/upload"
     # You can also send a file, the NGSI datasource provider is set as the filename
-    # curl -v -F file=@test.csv http://127.0.0.1:8080/upload
+    # curl -v -F file=@test.csv http://127.0.0.1:8880/upload
     # CTRL-C to stop the server
     agent.run()
 
