@@ -156,6 +156,9 @@ One could extend the framework according to his needs.
 ## Documentation
 The official documentation is hosted at https://pixel-ports.github.io/pyngsi-tutorial.html
 
+## Known Issues
+SourceMicrosoftExcel may fail to open some odd Excel files due to an openpyxl bug (i.e. sometimes cannot read graphs).<br>
+In this case try to remove the offending sheet or prefer working with CSV files.
 ## Background
 Work on ``pyngsi`` started at [Orange](https://www.orange.com) in 2019 for the needs of the [PIXEL](https://pixel-ports.eu) european project.
 
