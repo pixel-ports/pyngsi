@@ -48,7 +48,8 @@ class DataModel(dict):
         elif isinstance(value, float):
             t, v = "Float", value
         elif isinstance(value, datetime):
-            t, v = "DateTime", value.strftime("%Y-%m-%dT%H:%M:%S")
+            # the value datetime MUST be UTC
+            t, v = "DateTime", value.strftime("%Y-%m-%dT%H:%M:%SZ")
         elif isinstance(value, Point):
             t, v = "geo:json", value
         elif isinstance(value, tuple) and len(value) == 2:
@@ -71,6 +72,9 @@ class DataModel(dict):
 
     def add_date(self, *args, **kwargs):
         self.add(isdate=True, *args, **kwargs)
+
+    def add_date_now(self, *args, **kwargs):
+        self.add(value=datetime.utcnow(), *args, **kwargs)
 
     def add_url(self, *args, **kwargs):
         self.add(isurl=True, *args, **kwargs)

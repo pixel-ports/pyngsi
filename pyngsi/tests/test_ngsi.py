@@ -85,7 +85,7 @@ def test_add_field_date_from_datetime():
     d = datetime(2019, 6, 1, 18, 30, 0)
     m.add("dateObserved", d)
     assert m.json(
-    ) == r'{"id": "id", "type": "type", "dateObserved": {"value": "2019-06-01T18:30:00", "type": "DateTime"}}'
+    ) == r'{"id": "id", "type": "type", "dateObserved": {"value": "2019-06-01T18:30:00Z", "type": "DateTime"}}'
 
 
 def test_add_location_from_tuple():
