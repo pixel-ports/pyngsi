@@ -21,7 +21,7 @@ def build_entity(row: Row) -> DataModel:
 
 def main():
 
-    # You declare an HTTP server that acts as your Source, listening on port 8080
+    # You declare an HTTP server that acts as your Source, listening on port 8880
     src = ServerHttpUpload()
 
     # If you have an Orion server available, just replace SinkStdout() with SinkOrion()
@@ -32,11 +32,11 @@ def main():
 
     # You must push data to the source, here we send POST requests to the server
     # For example, in a bash shell, type in :
-    # curl -X POST -H "Content-Type: application/json" -d '{"room":"Room1","temperature":23.0,"pressure":710}' http://127.0.0.1:8080/upload
+    # curl -X POST -H "Content-Type: application/json" -d '{"room":"Room1","temperature":23.0,"pressure":710}' http://127.0.0.1:8880/upload
     # You could also send a JSON Array. For example, type in :
-    # curl -X POST -H "Content-Type: application/json" -d '[{"room":"Room1","temperature":23.0,"pressure":710},{"room":"Room2","temperature":21.0,"pressure":711}]' http://127.0.0.1:8080/upload
+    # curl -X POST -H "Content-Type: application/json" -d '[{"room":"Room1","temperature":23.0,"pressure":710},{"room":"Room2","temperature":21.0,"pressure":711}]' http://127.0.0.1:8880/upload
     # You can also send a file, the NGSI datasource provider is set as the filename
-    # curl -v -F file=@test.json http://127.0.0.1:8080/upload
+    # curl -v -F file=@test.json http://127.0.0.1:8880/upload
     # CTRL-C to stop the server
     agent.run()
 

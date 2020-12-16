@@ -6,7 +6,6 @@
 [![Code coverage](https://img.shields.io/codecov/c/github/pixel-ports/pyngsi/master)](https://codecov.io/gh/pixel-ports/pyngsi)
 [![Python version](https://img.shields.io/pypi/pyversions/pyngsi)](https://pypi.org/project/pyngsi/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pixel-ports/pyngsi-tutorial/master)
-[![NGSI v2](https://nexus.lab.fiware.org/repository/raw/public/badges/specifications/ngsiv2.svg)](https://fiware.github.io/specifications/ngsiv2/stable/)
 [![Powered by Fiware](https://img.shields.io/badge/powered%20by-Fiware-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](https://www.fiware.org/)
 <!--[![Package Status](https://img.shields.io/pypi/status/pixel-ports)](https://pypi.org/project/pyngsi/)-->
 
@@ -18,6 +17,7 @@ Writing a [NGSI](https://fiware.github.io/specifications/ngsiv2/stable) agent th
 
 ## Key Features
 
+- [NGSI v2](https://fiware.github.io/specifications/ngsiv2/stable/) support
 - Map Python-native data to NGSI entities
 - Write NGSI entities to Fiware [Orion](https://fiware-orion.readthedocs.io/en/master)
 - Handle incoming data through a common interface

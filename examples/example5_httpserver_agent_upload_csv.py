@@ -21,7 +21,7 @@ def build_entity(row: Row) -> DataModel:
 
 def main():
 
-    # You declare an HTTP server that acts as your Source, listening on port 8080
+    # You declare an HTTP server that acts as your Source, listening on port 8880
     src = ServerHttpUpload()
 
     # If you have an Orion server available, just replace SinkStdout() with SinkOrion()
