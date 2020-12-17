@@ -198,7 +198,7 @@ def test_set_implicit_transient():
     now = datetime.utcnow()
     DataModel.set_transient(timeout=ONE_WEEK)
     m = DataModel("id", "type")
-    a_week_later = now + timedelta(days=7)
+    a_week_later = now + timedelta(weeks=1)
     assert m['dateExpires']['value'][:10] == a_week_later.strftime("%Y-%m-%d")
 
 
