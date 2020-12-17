@@ -206,3 +206,5 @@ def test_unset_implicit_transient():
     DataModel.set_transient()
     DataModel.unset_transient()
     assert DataModel.transient_timeout is None
+    m = DataModel("id", "type")
+    assert m.json() == r'{"id": "id", "type": "type"}'
