@@ -3,10 +3,10 @@
 
 import pytest
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from geojson import Point
 
-from pyngsi.ngsi import DataModel, NgsiException, unescape
+from pyngsi.ngsi import DataModel, NgsiException, unescape, ONE_WEEK
 
 
 def test_create():
@@ -175,3 +175,34 @@ def test_add_address():
         r'"address": {"value": {"addressLocality": "London", ' \
         r'"postalCode": "EC4N 8AF", "streetAddress": "25 Walbrook"}, ' \
         r'"type": "PostalAddress"}}'
+
+
+def test_add_transient_expire_date():
+    christmas_under_lockdown = datetime(
+        2020, 12, 25, 12, 00, tzinfo=timezone.utc)
+    m = DataModel("id", "type")
+    m.add_transient(expire=christmas_under_lockdown)
+    assert m.json() == r'{"id": "id", "type": "type", ' \
+        r'"dateExpires": {"value": "2020-12-25T12:00:00Z", "type": "DateTime"}}'
+
+
+def test_add_transient_timeout_1d():
+    now = datetime.utcnow()
+    m = DataModel("id", "type")
+    m.add_transient(timeout=86400)
+    tomorrow = now + timedelta(days=1)
+    assert m['dateExpires']['value'][:10] == tomorrow.strftime("%Y-%m-%d")
+
+
+def test_set_implicit_transient():
+    now = datetime.utcnow()
+    DataModel.set_transient(timeout=ONE_WEEK)
+    m = DataModel("id", "type")
+    a_week_later = now + timedelta(days=7)
+    assert m['dateExpires']['value'][:10] == a_week_later.strftime("%Y-%m-%d")
+
+
+def test_unset_implicit_transient():
+    DataModel.set_transient()
+    DataModel.unset_transient()
+    assert DataModel.transient_timeout is None

@@ -4,10 +4,12 @@
 import json
 import urllib.parse
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from geojson import Point
 from typing import Any
 from collections.abc import Sequence, Callable
+
+ONE_WEEK = 7*86400
 
 
 class NgsiException(Exception):
@@ -24,10 +26,22 @@ def unescape(value: str) -> str:
 
 class DataModel(dict):
 
+    transient_timeout = None
+
     def __init__(self, id: str, type: str, serializer: Callable = str):
         self.serializer = serializer
         self["id"] = id
         self["type"] = type
+        if self.transient_timeout:
+            self.add_transient(self.transient_timeout)
+
+    @classmethod
+    def set_transient(cls, timeout: int = ONE_WEEK):
+        cls.transient_timeout = timeout
+
+    @classmethod
+    def unset_transient(cls):
+        cls.transient_timeout = None
 
     def add(self, name: str, value: Any,
             isdate: bool = False, isurl: bool = False, urlencode=False, metadata: dict = {}):
@@ -89,6 +103,11 @@ class DataModel(dict):
     def add_address(self, value: dict):
         t, v = "PostalAddress", value
         self["address"] = {"value": v, "type": t}
+
+    def add_transient(self, timeout: int = ONE_WEEK, expire: datetime = None):
+        if not expire:
+            expire = datetime.utcnow() + timedelta(seconds=timeout)
+        self.add("dateExpires", expire)
 
     def json(self):
         """Returns the datamodel in json format"""
