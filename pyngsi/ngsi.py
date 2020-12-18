@@ -87,7 +87,7 @@ class DataModel(dict):
     def add_date(self, *args, **kwargs):
         self.add(isdate=True, *args, **kwargs)
 
-    def add_date_now(self, *args, **kwargs):
+    def add_now(self, *args, **kwargs):
         self.add(value=datetime.utcnow(), *args, **kwargs)
 
     def add_url(self, *args, **kwargs):

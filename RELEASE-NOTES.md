@@ -4,7 +4,7 @@
 - Added Python `dict` type mapping to NGSI datamodels
 - Added support for transient entities (entities with expire date)
 - Added statistics to HTTP responses
-- Added `add_address()` and `add_date_now()` to build NGSI models
+- Added `add_address()` and `add_now()` to build NGSI models
 - Fixed ISO8601 DateTime format
 - Fixed row provider not initialized
 - Fixed wrong HTTP port in examples
