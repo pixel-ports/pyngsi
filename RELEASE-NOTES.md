@@ -1,3 +1,18 @@
+# pyngsi 2.1.0
+## December 18, 2020
+
+- Added Python `dict` type mapping to NGSI datamodels
+- Added support for transient entities (entities with expire date)
+- Added statistics to HTTP responses
+- Added `add_address()` and `add_date_now()` to build NGSI models
+- Fixed ISO8601 DateTime format
+- Fixed row provider not initialized
+- Fixed wrong HTTP port in examples
+- Added Known Issues to README
+- Upgrade dependencies
+- Removed unused dependencies
+- Removed broken badge NGSIv2 in README
+
 # pyngsi 2.0.0
 ## July 30, 2020
 
