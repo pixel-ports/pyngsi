@@ -19,6 +19,7 @@ import os
 
 from abc import ABC, abstractmethod
 from loguru import logger
+from requests_toolbelt.utils import dump
 
 from pyngsi.__init__ import __version__ as version
 
@@ -60,6 +61,8 @@ class SinkStdout(Sink):
         print(msg)
 
 # TODO : add append option
+
+
 class SinkFile(Sink):
     """Write to file"""
 
@@ -72,7 +75,8 @@ class SinkFile(Sink):
         """
         self.filename = filename
         try:
-            self.file = open(self.filename, "a" if append else "w" , encoding="utf8")
+            self.file = open(
+                self.filename, "a" if append else "w", encoding="utf8")
         except Exception as e:
             raise SinkException(f"cannot open file {self.filename} : {e}")
 
@@ -125,9 +129,9 @@ class SinkHttp(Sink):
         HTTP Proxy string (i.e http://127.0.0.1:8080)
     """
 
-    def __init__(self, hostname="127.0.0.1", port=8080, baseurl="/",
+    def __init__(self, hostname="127.0.0.1", port=8080, secure=False, baseurl="/",
                  useragent=f"NgsiAgent v{version}", status_endpoint="/status",
-                 token=None, proxy=None):
+                 proxy=None):
         """
         Parameters
         ----------
@@ -148,19 +152,18 @@ class SinkHttp(Sink):
 
         self.hostname = hostname
         self.port = port
+        self.protocol = "https" if secure else "http"
         self.baseurl = baseurl = baseurl.rstrip("/")
-        self.url = f"http://{hostname}:{port}{baseurl}"
+        self.url = f"{self.protocol}://{hostname}:{port}{baseurl}"
         self.status_endpoint = status_endpoint
-        self.status_url = f"http://{hostname}:{port}{self.status_endpoint}"
+        self.status_url = f"{self.url}{self.status_endpoint}"
         self.proxy = proxy
         self.headers = {'Content-Type': 'application/json',
-                        'User-Agent': useragent }
-        if token:
-            self.headers['Authorization'] = f'Bearer {token}'
-            
-        logger.info(f"server url = {self.url=}")
-        logger.info(f"User-Agent = {useragent=}")
-        logger.info(f"proxy = {self.proxy}")
+                        'User-Agent': useragent}
+        logger.info(f"{self.url=}")
+        logger.info(f"{useragent=}")
+        logger.info(f"{self.status_endpoint=}")
+        logger.info(f"{self.proxy=}")
 
     def write(self, msg):
         """Sends HTTP POST request with the NGSI data
@@ -175,63 +178,70 @@ class SinkHttp(Sink):
             r = requests.post(
                 self.url, msg, headers=self.headers,
                 proxies={self.proxy} if self.proxy else None)
+            logger.debug(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise SinkException(
                 f"cannot write to SinkHttp : {e}\nServer returned : {r.text}\nrecord={msg}")
         except Exception as e:
-            raise SinkException(f"cannot write to SinkHttp : {e}\nrecord={msg}")
+            raise SinkException(
+                f"cannot write to SinkHttp : {e}\nrecord={msg}")
 
     def status(self) -> dict:
-        logger.trace("ask http server status")
+        logger.debug("ask http server status")
         try:
-            r = requests.get(self.status_url)
+            r = requests.get(self.status_url, headers=self.headers)
+            logger.debug(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
             return r.json()
         except requests.exceptions.HTTPError as e:
+            logger.error(e)
             orion_status = {}
-            orion_status['state'] = 'DOWN'
+            orion_status['state'] = 'Down or Unreachable'
             orion_status['exception'] = e
             orion_status['server_message'] = r.text
             return orion_status
-        except Exception:
+        except Exception as e:
+            logger.error(e)
             orion_status = {}
-            orion_status['state'] = 'DOWN'
+            orion_status['state'] = 'Down or Unreachable'
             return orion_status
 
 
 class SinkOrion(SinkHttp):
     """Send to Orion Context Broker"""
 
-    def __init__(self, hostname="127.0.0.1", port="1026",
-                 baseurl="/v2/entities?options=upsert", service=None,
+    def __init__(self, hostname="127.0.0.1", port="1026", secure=False,
+                 baseurl="/v2/entities?options=upsert", status_endpoint="/version", token=None, service=None,
                  servicepath=None, **kwargs):
         logger.debug("init SinkOrion")
-        super().__init__(hostname, port, baseurl,
-                         status_endpoint="/version", **kwargs)
-        
-        if 'Authorization' in self.headers: # a token has already been provided to the pyngsi framework
-            logger.info("A token has been provided to the pyngsi framework.")
+        super().__init__(hostname, port, secure, baseurl,
+                         status_endpoint=status_endpoint, **kwargs)
+        if 'X-Auth-Token' in self.headers:
+            logger.info("A token has already been provided to the pyngsi framework.")
         else:
-            token = os.environ.get('ORION_TOKEN', None) # 1st try to get the token from environment variable
             if token:
+                logger.info("A token has been set programmatically.")
+            elif token := os.environ.get('ORION_TOKEN', None):
                 logger.info("A token has been found in environment variable.")
             else:
                 try:
                     with open('/run/secrets/orion_token') as f:
-                        token = f.read() # 2nd try to get the token from a given file (Docker Secret mode)
+                        token = f.read()  # 2nd try to get the token from a given file (Docker Secret mode)
                         token = token.rstrip(" \r\n")
                 except Exception:
                     pass
                 else:
                     logger.info("A token has been found in docker secrets.")
-            if token: # a token has been found
+            if token:  # a token has been found
                 logger.info("Use token for authentication")
-                self.headers['Authorization'] = f'Bearer {token}' # add the token to the Authorization header                
+                # add the token to the Authorization header
+                self.headers['X-Auth-Token'] = token
             else:
-                logger.info("No token found. Request Orion without authentication.")
+                logger.info(
+                    "No token found. Request Orion without authentication.")
 
-        if service is not None :
+        if service is not None:
             self.headers['Fiware-Service'] = service
-        if servicepath is not None :
+        if servicepath is not None:
             self.headers['Fiware-ServicePath'] = servicepath

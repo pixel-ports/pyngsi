@@ -85,7 +85,7 @@ def test_sink_http_server_status_error(requests_mock):
     sink = SinkHttp()
     requests_mock.get("http://127.0.0.1:8080/status", status_code=400)
     resp = sink.status()
-    assert resp["state"] == "DOWN"
+    assert resp["state"] == "Down or Unreachable"
 
 
 def test_sink_orion(requests_mock):
