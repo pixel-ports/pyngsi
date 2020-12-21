@@ -1,3 +1,8 @@
+# pyngsi 2.1.1
+## December 21, 2020
+
+- Fixed Orion authentication
+
 # pyngsi 2.1.0
 ## December 18, 2020
 
