@@ -7,11 +7,9 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-test_requirements = ["pytest", "pytest-mock", "requests-mock", "pytest-flask"]
-
 setuptools.setup(
     name="pyngsi",
-    version="2.1.3",
+    version="2.1.6",
     description="NGSI Python framework intended to build a Fiware NGSI Agent",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -28,7 +26,10 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9"
     ],
+    packages=setuptools.find_packages(),
+    include_package_data=False,
     install_requires=["loguru", "requests", "requests-toolbelt", "shortuuid",
-                      "more_itertools", "geojson", "flask", "cherrypy", "schedule", "openpyxl"] + test_requirements,
+                      "more_itertools", "geojson", "flask", "cherrypy", "schedule", "openpyxl"],
+    test_requires=["pytest", "pytest-mock", "requests-mock", "pytest-flask"],
     python_requires=">=3.8"
 )
