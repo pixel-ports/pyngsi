@@ -178,7 +178,7 @@ class SinkHttp(Sink):
             r = requests.post(
                 self.url, msg, headers=self.headers,
                 proxies={self.proxy} if self.proxy else None)
-            logger.debug(dump.dump_all(r).decode('utf-8'))
+            logger.trace(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise SinkException(
@@ -191,7 +191,7 @@ class SinkHttp(Sink):
         logger.debug("ask http server status")
         try:
             r = requests.get(self.status_url, headers=self.headers)
-            logger.debug(dump.dump_all(r).decode('utf-8'))
+            logger.trace(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
             return r.json()
         except requests.exceptions.HTTPError as e:

@@ -141,6 +141,7 @@ One could extend the framework according to his needs.
 ## Dependencies
 - [loguru](https://github.com/Delgan/loguru)
 - [requests](https://2.python-requests.org)
+- [requests-toolbelt](https://github.com/requests/toolbelt)
 - [shortuuid](https://github.com/skorokithakis/shortuuid)
 - [more_itertools](https://github.com/more-itertools/more-itertools)
 - [geojson](https://github.com/jazzband/geojson)

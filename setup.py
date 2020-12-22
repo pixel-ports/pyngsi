@@ -28,7 +28,7 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     include_package_data=False,
-    install_requires=["loguru", "requests", "shortuuid",
+    install_requires=["loguru", "requests", "requests-toolbelt", "shortuuid",
                       "more_itertools", "geojson", "flask", "cherrypy", "schedule", "openpyxl"],
     python_requires=">=3.8"
 )
