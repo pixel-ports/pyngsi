@@ -16,6 +16,7 @@ Other sinks such as SinkStdout or SinkFile are useful during the development sta
 import gzip
 import requests
 import os
+import copy
 
 from abc import ABC, abstractmethod
 from loguru import logger
@@ -130,7 +131,8 @@ class SinkHttp(Sink):
     """
 
     def __init__(self, hostname="127.0.0.1", port=8080, secure=False, baseurl="/",
-                 useragent=f"NgsiAgent v{version}", status_endpoint="/status",
+                 post_endpoint="/", post_query="", status_endpoint="/status",
+                 useragent=f"NgsiAgent v{version}",
                  proxy=None):
         """
         Parameters
@@ -154,15 +156,18 @@ class SinkHttp(Sink):
         self.port = port
         self.protocol = "https" if secure else "http"
         self.baseurl = baseurl = baseurl.rstrip("/")
-        self.url = f"{self.protocol}://{hostname}:{port}{baseurl}"
-        self.status_endpoint = status_endpoint
-        self.status_url = f"{self.url}{self.status_endpoint}"
+        self.post_endpoint = post_endpoint = post_endpoint.rstrip("/")
+        self.status_endpoint = status_endpoint = status_endpoint.rstrip("/")
+        prefix = f"{self.protocol}://{hostname}:{port}{baseurl}"
+        self.post_url = f"{prefix}{post_endpoint}?{post_query}"
+        self.status_url = f"{prefix}{status_endpoint}"
         self.proxy = proxy
         self.headers = {'Content-Type': 'application/json',
                         'User-Agent': useragent}
-        logger.info(f"{self.url=}")
+        logger.info(f"{self.baseurl=}")
+        logger.info(f"{self.post_url=}")
+        logger.info(f"{self.status_url=}")
         logger.info(f"{useragent=}")
-        logger.info(f"{self.status_endpoint=}")
         logger.info(f"{self.proxy=}")
 
     def write(self, msg):
@@ -176,7 +181,7 @@ class SinkHttp(Sink):
 
         try:
             r = requests.post(
-                self.url, msg, headers=self.headers,
+                self.post_url, msg, headers=self.headers,
                 proxies={self.proxy} if self.proxy else None)
             logger.trace(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
@@ -190,7 +195,12 @@ class SinkHttp(Sink):
     def status(self) -> dict:
         logger.debug("ask http server status")
         try:
-            r = requests.get(self.status_url, headers=self.headers)
+            if 'Content-Type' in self.headers: # workaround unwanted Content-Type
+                headers = self.headers.copy()
+                del headers['Content-Type']
+            else:
+                headers = self.headers()
+            r = requests.get(self.status_url, headers=headers)
             logger.trace(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
             return r.json()
@@ -211,14 +221,17 @@ class SinkHttp(Sink):
 class SinkOrion(SinkHttp):
     """Send to Orion Context Broker"""
 
-    def __init__(self, hostname="127.0.0.1", port="1026", secure=False,
-                 baseurl="/v2/entities?options=upsert", status_endpoint="/version", token=None, service=None,
-                 servicepath=None, **kwargs):
+    def __init__(self, hostname="127.0.0.1", port="1026", secure=False, baseurl="/",
+                 post_endpoint="/v2/entities", post_query="options=upsert", status_endpoint="/version",
+                 useragent=f"NgsiAgent v{version}", proxy=None,
+                 token=None, service=None, servicepath=None):
         logger.debug("init SinkOrion")
         super().__init__(hostname, port, secure, baseurl,
-                         status_endpoint=status_endpoint, **kwargs)
+                         post_endpoint, post_query, status_endpoint,
+                         useragent, proxy)
         if 'X-Auth-Token' in self.headers:
-            logger.info("A token has already been provided to the pyngsi framework.")
+            logger.info(
+                "A token has already been provided to the pyngsi framework.")
         else:
             if token:
                 logger.info("A token has been set programmatically.")

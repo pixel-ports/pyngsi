@@ -88,10 +88,40 @@ def test_sink_http_server_status_error(requests_mock):
     assert resp["state"] == "Down or Unreachable"
 
 
-def test_sink_orion(requests_mock):
+def test_sink_orion_no_baseurl():
+    sink = SinkOrion()
+    assert sink.post_url == "http://127.0.0.1:1026/v2/entities?options=upsert"
+    assert sink.status_url == "http://127.0.0.1:1026/version"
+
+
+def test_sink_orion_baseurl():
+    sink = SinkOrion(baseurl="/hopu/orion")
+    assert sink.post_url == "http://127.0.0.1:1026/hopu/orion/v2/entities?options=upsert"
+    assert sink.status_url == "http://127.0.0.1:1026/hopu/orion/version"
+
+
+def test_sink_orion_write(requests_mock):
     sink = SinkOrion()
     requests_mock.post("http://127.0.0.1:1026/v2/entities?options=upsert",
                        request_headers={'Content-Type': 'application/json'})
+    sink.write(msg=r'{"id": "Room1", "type": "Room")')
+
+
+def test_sink_orion_write_with_auth(requests_mock):
+    sink = SinkOrion(token="00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff")
+    requests_mock.post("http://127.0.0.1:1026/v2/entities?options=upsert",
+                       request_headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'})
+    sink.write(msg=r'{"id": "Room1", "type": "Room")')
+
+
+def test_sink_orion_write_with_auth_env(mocker, requests_mock):
+    mocker.patch.dict(
+        os.environ, {'ORION_TOKEN': '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'})
+    sink = SinkOrion()
+    requests_mock.post("http://127.0.0.1:1026/v2/entities?options=upsert",
+                       request_headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'})
     sink.write(msg=r'{"id": "Room1", "type": "Room")')
 
 
@@ -99,4 +129,25 @@ def test_sink_orion_status(requests_mock):
     sink = SinkOrion()
     requests_mock.get("http://127.0.0.1:1026/version",
                       json={'orion': {'version': '2.2.0-next'}})
-    _ = sink.status()
+    status = sink.status()
+    assert status["orion"]["version"] == "2.2.0-next"
+
+
+def test_sink_orion_status_with_auth(requests_mock):
+    sink = SinkOrion(token="00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff")
+    requests_mock.get("http://127.0.0.1:1026/version",
+                      request_headers={'X-Auth-Token': '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'},
+                      json={'orion': {'version': '2.2.0-next'}})
+    status = sink.status()
+    assert status["orion"]["version"] == "2.2.0-next"
+
+
+def test_sink_orion_status_with_auth_env(mocker, requests_mock):
+    mocker.patch.dict(
+        os.environ, {'ORION_TOKEN': '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'})
+    sink = SinkOrion()
+    requests_mock.get("http://127.0.0.1:1026/version",
+                      request_headers={'X-Auth-Token': '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'},
+                      json={'orion': {'version': '2.2.0-next'}})
+    status = sink.status()
+    assert status["orion"]["version"] == "2.2.0-next"
