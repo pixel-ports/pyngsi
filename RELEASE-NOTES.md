@@ -1,3 +1,7 @@
+# pyngsi 2.1.2
+## December 22, 2020
+
+- Fixed missing import
 # pyngsi 2.1.1
 ## December 21, 2020
 
