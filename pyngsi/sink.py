@@ -159,7 +159,7 @@ class SinkHttp(Sink):
         self.post_endpoint = post_endpoint = post_endpoint.rstrip("/")
         self.status_endpoint = status_endpoint = status_endpoint.rstrip("/")
         prefix = f"{self.protocol}://{hostname}:{port}{baseurl}"
-        self.post_url = f"{prefix}{post_endpoint}?{post_query}"
+        self.post_url = f"{prefix}{post_endpoint}?{post_query}" if post_query else f"{prefix}{post_endpoint}"
         self.status_url = f"{prefix}{status_endpoint}"
         self.proxy = proxy
         self.headers = {'Content-Type': 'application/json',
