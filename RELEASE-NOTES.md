@@ -1,3 +1,7 @@
+# pyngsi 2.1.7
+## January 21, 2021
+
+- Fixed SourceMicrosoftExcel not working with formula cells
 # pyngsi 2.1.3
 ## December 22, 2020
 
