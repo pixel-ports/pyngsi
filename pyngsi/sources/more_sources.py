@@ -51,7 +51,7 @@ class SourceMicrosoftExcel(Source):
 
     def __init__(self, filename, sheetid: int = 0, sheetname: str = None, ignore: int = 0):
         logger.debug(f"{filename=}")
-        wb = openpyxl.load_workbook(filename)
+        wb = openpyxl.load_workbook(filename, data_only=True)
         ws = wb[sheetname] if sheetname else wb.worksheets[sheetid]
         self.rows = ws.rows
         self.provider = Path(filename).name
