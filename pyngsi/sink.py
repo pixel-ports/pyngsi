@@ -164,6 +164,7 @@ class SinkHttp(Sink):
         self.proxy = proxy
         self.headers = {'Content-Type': 'application/json',
                         'User-Agent': useragent}
+        self.session = requests.Session()
         logger.info(f"{self.baseurl=}")
         logger.info(f"{self.post_url=}")
         logger.info(f"{self.status_url=}")
@@ -180,7 +181,7 @@ class SinkHttp(Sink):
         """
 
         try:
-            r = requests.post(
+            r = self.session.post(
                 self.post_url, msg, headers=self.headers,
                 proxies={self.proxy} if self.proxy else None)
             logger.trace(dump.dump_all(r).decode('utf-8'))
@@ -200,7 +201,7 @@ class SinkHttp(Sink):
                 del headers['Content-Type']
             else:
                 headers = self.headers()
-            r = requests.get(self.status_url, headers=headers)
+            r = self.session.get(self.status_url, headers=headers)
             logger.trace(dump.dump_all(r).decode('utf-8'))
             r.raise_for_status()
             return r.json()
