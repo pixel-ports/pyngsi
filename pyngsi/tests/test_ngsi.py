@@ -35,14 +35,14 @@ def test_add_field_int():
     m = DataModel("id", "type")
     m.add("temperature", 37)
     assert m.json(
-    ) == r'{"id": "id", "type": "type", "temperature": {"value": 37, "type": "Integer"}}'
+    ) == r'{"id": "id", "type": "type", "temperature": {"value": 37, "type": "Number"}}'
 
 
 def test_add_field_float():
     m = DataModel("id", "type")
     m.add("temperature", 37.2)
     assert m.json(
-    ) == r'{"id": "id", "type": "type", "temperature": {"value": 37.2, "type": "Float"}}'
+    ) == r'{"id": "id", "type": "type", "temperature": {"value": 37.2, "type": "Number"}}'
 
 
 def test_add_field_bool():
@@ -140,8 +140,8 @@ def test_metadata():
     m.add("CO", 500, metadata=unitsGP)
     m.add("NO", 45, metadata=unitsGQ)
     assert m.json() == r'{"id": "AirQualityObserved", "type": "AirQualityObserved", ' \
-        r'"CO": {"value": 500, "type": "Integer", "metadata": {"unitCode": {"value": "GP"}}}, ' \
-        r'"NO": {"value": 45, "type": "Integer", "metadata": {"unitCode": {"value": "GQ"}}}}'
+        r'"CO": {"value": 500, "type": "Number", "metadata": {"unitCode": {"value": "GP"}}}, ' \
+        r'"NO": {"value": 45, "type": "Number", "metadata": {"unitCode": {"value": "GQ"}}}}'
 
 
 def test_add_relationship():

@@ -58,9 +58,9 @@ class DataModel(dict):
         elif isinstance(value, bool):
             t, v = "Boolean", value
         elif isinstance(value, int):
-            t, v = "Integer", value
+            t, v = "Number", value
         elif isinstance(value, float):
-            t, v = "Float", value
+            t, v = "Number", value
         elif isinstance(value, datetime):
             # the value datetime MUST be UTC
             t, v = "DateTime", value.strftime("%Y-%m-%dT%H:%M:%SZ")

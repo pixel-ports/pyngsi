@@ -21,9 +21,9 @@ def test_build_entity_sample_orion():
     assert m['id'] == "Room1"
     assert m['type'] == "Room"
     assert m['temperature']['value'] == 21.7
-    assert m['temperature']['type'] == "Float"
+    assert m['temperature']['type'] == "Number"
     assert m['pressure']['value'] == 720
-    assert m['pressure']['type'] == "Integer"
+    assert m['pressure']['type'] == "Number"
 
 
 def test_agent(mocker):
