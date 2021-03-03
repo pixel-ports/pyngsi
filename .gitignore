@@ -13,3 +13,5 @@ GPUCache/
 build/
 /.project
 **/.ipynb_checkpoints
+dist/
+sdist/
