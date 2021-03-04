@@ -1,3 +1,9 @@
+# pyngsi 2.1.8
+## March 3, 2021
+
+- Merged [PR#2](https://github.com/pixel-ports/pyngsi/pull/2) : add session based connections for high data rate scenario's
+- Fixed [issue#3](https://github.com/pixel-ports/pyngsi/issues/3) : use Number datatype according to the [guidelines](https://fiware-datamodels.readthedocs.io/en/latest/guidelines/index.html)
+- Updated dependencies versions
 # pyngsi 2.1.7
 ## January 21, 2021
 
@@ -49,7 +55,7 @@
 # pyngsi 1.2.6
 ## June 29, 2020
 
-- Fixed [issue#1](https://github.com/pixel-ports/pyngsi-tutorial) : bad handling of array's in the DataModel
+- Fixed [issue#1](https://github.com/pixel-ports/pyngsi/issues/1) : bad handling of array's in the DataModel
 
 # pyngsi 1.2.5
 ## June 26, 2020
