@@ -3,7 +3,7 @@ Flask==1.1.2
 geojson==2.5.0
 loguru==0.5.3
 more-itertools==8.7.0
-requests==2.25.1
+requests==2.31.0
 requests_toolbelt==0.9.1
 schedule==1.0.0
 shortuuid==1.0.1
